@@ -1,7 +1,10 @@
 
 __pycache__/*
 */__pycache__/*
-
+python_scripts/build/*
+python_scripts/aegir
+python_scripts/dist/*
+python_scripts/aegir.spec
 */saveset.py
 *.png
 *.json

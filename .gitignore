@@ -1,0 +1,15 @@
+
+__pycache__/*
+*/__pycache__/*
+
+*/saveset.py
+*.png
+*.json
+*.txt
+*.csv
+
+*/.env
+.env
+
+*/test/*
+

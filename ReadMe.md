@@ -1,6 +1,9 @@
-# AEGIR
+# $\Huge{\texttt{AEGIR}}$
 
-**A**rtifically and **E**nvironmentally **G**enerated **I**rradiance and **R**adiance
+$\Huge{A}\large{\text{rtifically and }}\Huge{E}\large{\text{nvironmentally }}\Huge{G}\large{\text{enerated }}\Huge{I}\large{\text{rradiance and }}\Huge{R}\large{\text{adiance}}$
+
+
+
 
 ## Description
 
@@ -9,7 +12,7 @@ The tools will only work on Linux based operating systems. The system is designe
 
 ## Requirements
 
-- Linux computer (Project was developed using Raspberry Pi OS on an RPi4).
+- Linux computer (Project was developed using 64-bit Raspberry Pi OS on an RPi4).
 - USB 3.0 port (or faster).
 - IDS Device compatible with the IDS Peak API.
 - The [IDS Peak](https://en.ids-imaging.com/ids-peak.html) software installed. (This is just for the drivers, the main IDS Peak software is not used by the application).

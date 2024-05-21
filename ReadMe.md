@@ -152,7 +152,8 @@ C'_{sRGB} \div 12.92 & \text{if }  C'_{sRGB} \leq 0.0405 \\ \\
 
 The mean value for each channel is taken for pixels within the [inner region](#image-regions), and the resulting linear sRGB values are transformed into the CIE 1931 XYZ colour space using:
 
-$$\begin{bmatrix}
+```math
+\begin{bmatrix}
 X\\
 Y\\
 Z
@@ -163,7 +164,9 @@ Z
 \end{bmatrix}\begin{bmatrix}
 R_{sRGB} \\
 G_{sRGB} \\
-B_{sRGB}\end{bmatrix} \qquad \text{     }\left(4 \right )$$
+B_{sRGB}\end{bmatrix} \qquad \text{     }\left(4 \right )
+
+```math
 In which the Y value corresponds to the luminance.
 
 ##### Absolute Luminance

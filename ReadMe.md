@@ -41,18 +41,48 @@ The tools will only work on Linux based operating systems. The system is designe
 
         sudo bash install.sh
 
-  You must use sudo to run the script as the root user as the install script modifies a system setting for the USB IO buffer memory size ([See this page in the IDS Peak manual for details](https://www.1stvision.com/cameras/IDS/IDS-manuals/en/operate-usb3-hints-linux.html)) and modifies the permissions of application files.
+  You must use sudo, or be logged in as root to run the script as the install script modifies a system setting for the USB IO buffer memory size ([See this page in the IDS Peak manual for details](https://www.1stvision.com/cameras/IDS/IDS-manuals/en/operate-usb3-hints-linux.html)) and modifies the permissions of application files. The script will not run if the user is not root or using sudo.
   
   The script asks for the directory in which the user would like captured data to be stored, and the location of the ids peak installation so that the drivers for the IDS camera can be used.
-  It creates a ".env" file in the main installation directory containing environment variables used for running AEGIR.
-  It creates a directory in the specified location (by default in the ```/home/[user]/``` directory), and creates two further sub-directories - ```routines``` and ```sessions``` - which will be the location in which routines will be read and captured data stored respectively. Example routines are included in the ```routines``` directory.
+
+  #### *.env* file
+  The script creates a ".env" file in the main installation directory containing environment variables used for running AEGIR.
+
+  #### Data Directory
+  The install script also creates a directory (or populates an existing directory) in the specified location (by default in the ```/home/[user]/``` directory), and creates two further sub-directories - ```routines``` and ```sessions``` - which will be the location in which routines will be read and captured data stored respectively. Example routines are included in the ```routines``` directory.
+
+
+       
+
+  
+## Usage
+
 
   Once the installation has completed successfully, you can run the application from the shell from any location using:
 
-        aegir [options]
-  Use the ```-h``` option to see a list of available options.  
+  ``` aegir [options] ```
+
+### Options
+-   ```-h, --help``` : Show the help message.
+-   ```-b, --buffer [size]``` : Set the buffer size in mB for USB devices. The minimum recommended value is 1000mB, and if ```-b``` is given without a size, the default value of 1000mB is used. A given size must be a positive integer number.
+-   ```-f, --focus``` : Run the focus.py script to assist in focusing the camera. This uses a simple derivative across both axes of the image to find 'edges'. Note that the number given is not an absolute number, but is relative depending on what the camera is pointing at. The derivative updates every second or so in the terminal, and by adjusting the focus on the camera while watching this, the user can find the peak.
+-  ```-n, --node [node name]``` : Uses the ids_peak library scripts to access control and information nodes on the camera. Use
   
-## Usage
+    - ```aegir -n [node name] --get```to access the node value.
+    - ```aegir -n [node name] --set [value]``` to set the node value.
+
+   Note that the node name must be a valid node name for the camera, and the value must be a valid value for the node. Not all nodes are accessible depending on the state of the camera.
+-  ```-r, --routine [routine name]``` : Run a routine from the routines directory. The routine must be a python script which uses the aegir library. The routine must be in the routines subdirectory within the [data directory](#data-directory), and the name given may be the routine name with or without the file extension. 
+
+   The routine will run in the background, though any error or warning messages will be output to ``stderr`` - usually meaning they will be displayed in the terminal.
+
+   To run a routine, a session name must also be provided with the ```-s``` or ```--session``` option. 
+
+- ```-s, --session [session name]``` : The name of the session to be used. If the session does not exist, a new session is created with the given name. The session name must be a valid directory name, it is recommended not to use spaces. The session name is used to create a directory in the [sessions directory](#data-directory) in which the session data is stored. 
+- ``` -q, --query``` : Check for an active aegir routine running. If a routine is running, the session name is returned, along with information including run-time and image count.
+- ``` -x, --stop``` : Send a stop signal to a currently running routine. If an image is currently being captured, capture completes, the image is added to the save queue, and the routine is stopped. The save queue keeps working until all images are processed and saved, which should only be a few seconds.
+- ```-l\ --log``` : Show a live view of the output log of a currently running routine. Use ```Ctrl+C``` to exit the log view - this will not stop the routine.
+- ```--run <Filepath>``` : Run a python script using the environment variables as set in the .env file. This is useful for running scripts which use the IDS Peak API, or the GenICam GenTL API, as the device GenTL producer variables must be set in order to interface with a camera. The full path must be in the current working directory or the full path must be given. The script must be a valid python script which can be run using the python interpreter.
 
 ## Concepts
 

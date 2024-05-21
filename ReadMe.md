@@ -18,11 +18,10 @@ The tools will only work on Linux based operating systems. The system is designe
 - The [IDS Peak](https://en.ids-imaging.com/ids-peak.html) software installed. (This is just for the drivers, the main IDS Peak software is not used by the application).
 - Python 3.11 (This is the newest version supported by the IDS Peak API).
 - A  Conda python environment with the required [dependencies](./environment.yml) installed. (Some of the dependencies are not available on conda channels and Pip must be used while the Conda environment is active). The IDS Libraries must be manually installed using the wheel files included in the IDS Peak download (see [installation](#installation)).
-
     Anaconda can be tricky to set up on a Raspberry Pi. The [Miniforge](https://github.com/conda-forge/miniforge) project is a useful tool which has installers which are specifically for Raspberry Pi OS (Requires a 64-bit version of Raspberry Pi OS).
+- A [Measurement Specialties MS5837-30BA](https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7FMS5837-30BA%7FB1%7Fpdf%7FEnglish%7FENG_DS_MS5837-30BA_B1.pdf%7FCAT-BLPS0017) pressure sensor. These are available as components, or as part of integrated sensor products, such as the [Blue Robotics Bar30 Sensor](https://bluerobotics.com/store/sensors-cameras/sensors/bar30-sensor-r1/).
 
 ### Recommendations
-
 - An RTC (Real time clock) module if using Raspberry Pi or other device without a hardware clock. Enables accurate time keeping when disconnected from the internet.
 
 ## Installation

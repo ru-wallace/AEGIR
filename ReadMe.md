@@ -12,7 +12,7 @@ The tools will only work on Linux based operating systems. The system is designe
 - Linux computer (Project was developed using Raspberry Pi OS on an RPi4).
 - USB 3.0 port (or faster).
 - IDS Device compatible with the IDS Peak API.
-- [IDS Peak API](https://en.ids-imaging.com/ids-peak.html) libraries installed.
+- The [IDS Peak](https://en.ids-imaging.com/ids-peak.html) software installed. (This is just for the drivers, the main IDS Peak software is not used by the application).
 - Python 3.11 (This is the newest version supported by the IDS Peak API).
 - A  Conda python environment with the required [dependencies](./environment.yml) installed. (Some of the dependencies are not available on conda channels and Pip must be used while the Conda environment is active). The IDS Libraries must be manually installed using the wheel files included in the IDS Peak download (see [installation](#installation)).
 
@@ -26,26 +26,19 @@ The tools will only work on Linux based operating systems. The system is designe
 
 - Download and install the IDS Peak Software
 
-- Create a python virtual environment and install the necessary dependencies in environment.yml. With conda this can be done using:
+- Create a python virtual environment and install the necessary dependencies as listed in environment.yml. With conda this can be done using:
 
         conda env create -f environment.yml
 
 - Activate this environment using:
 
         conda activate [environment name] 
-- To install the IDS Peak Python Libraries make sure your python environment is activated and use:
 
-        pip install --no-deps [.whl file location]
+- Run the [install script](./install.sh) by navigating to the main directory and using:
 
-    Make sure to use the correct location of the file corresponding to your system architecture (ARM64 for Raspberry Pi 4).
+        sudo bash install.sh
 
-    Conda has no built-in function for installing modules from .whl wheel files but using pip will install it in the environment. The "--no-deps" option ensures that only the IDS files will be installed and not any of their listed dependencies. Use conda where possible to install any dependencies which are required beyond that.
-
-- Run the install script by navigating to the main directory and using:
-
-        sudo bash bash_scripts/install.sh
-
-  You must use sudo to run the script as the root user as the install script modifies a system setting for the USB IO buffer memory size ([See this page in the IDS Peak manual for details](https://www.1stvision.com/cameras/IDS/IDS-manuals/en/operate-usb3-hints-linux.html)) and modifies the permissions of files in the application.
+  You must use sudo to run the script as the root user as the install script modifies a system setting for the USB IO buffer memory size ([See this page in the IDS Peak manual for details](https://www.1stvision.com/cameras/IDS/IDS-manuals/en/operate-usb3-hints-linux.html)) and modifies the permissions of application files.
   
   The script asks for the directory in which the user would like captured data to be stored, and the location of the ids peak installation so that the drivers for the IDS camera can be used.
   It creates a ".env" file in the main installation directory containing environment variables used for running AEGIR.
@@ -53,7 +46,8 @@ The tools will only work on Linux based operating systems. The system is designe
 
   Once the installation has completed successfully, you can run the application from the shell from any location using:
 
-        runcam [options]  
+        aegir [options]
+  Use the ```-h``` option to see a list of available options.  
   
 ## Usage
 
@@ -138,33 +132,25 @@ For a monochromatic camera, relative luminance is simple, as the pixel values ar
 
 For a colour camera capturing data in 8bit RGB, a more complex process is used to ascertain relative luminance. Again the pixel values are normalised to between 0 and 1 by dividing by 255:
 
-${C}'_{sRGB} = \frac{\left (C_{8bit}-KDC  \right )}{\left (WDC-KDC  \right )} \qquad \left (1  \right )$
+<img src="https://latex.codecogs.com/png.image?\dpi{110}\bg{white}{C}'_{sRGB}=\frac{\left(C_{8bit}-KDC\right)}{\left(WDC-KDC\right)}\quad\text{  }\left(1\right)">
 
-${C}'_{sRGB} = C_{8bit} \div {255} \qquad \text{ } \left (2  \right )$
 
-Where $C_{8bit}$ is the pixel value between 0 and 255 for each channel, KDC is the black digital count of 0, and WDC is the white digital count of 255.
+<img src="https://latex.codecogs.com/png.image?\dpi{110}\bg{white}{C}'_{sRGB}=C_{8bit}\div{255}\qquad\qquad\text{ }\left(2\right)">
+
+
+
+Where <img src="https://latex.codecogs.com/png.image?\inline&space;\bg{white}\dpi{110}C_{8bit}"> is the pixel value between 0 and 255 for each channel, KDC is the black digital count of 0, and WDC is the white digital count of 255.
 
 The camera captures data in the non linear sR'G'B' colour space. Using a procedure defined in *IEC Standard 61966-2-1/AMD1:2003 Section 5.2*, the pixel values are linearised:
 
-$C_{sRGB} = \left\{\begin{matrix}
-C'_{sRGB} \div 12.92 & \text{if }  C'_{sRGB} \leq 0.0405 \\
-\left [ \frac{\left( C'_{sRGB} + 0.055 \right )}{1.055}  \right]^{2.4} & \text{if } C'_{sRGB} > 0.0405 \\
-\end{matrix}\right.  \quad \left (3 \right )$
+
+<img src="https://latex.codecogs.com/png.image?\dpi{110}\bg{white}C_{sRGB}=\left\{\begin{matrix}C'_{sRGB}\div&space;12.92&\text{if}C'_{sRGB}\leq&space;0.0405\\\left[\frac{\left(C'_{sRGB}&plus;0.055\right)}{1.055}\right]^{2.4}&\text{if}C'_{sRGB}>0.0405\\\end{matrix}\right.\quad\left(3\right)">
+
 
 The mean value for each channel is taken for pixels within the [inner region](#image-regions), and the resulting linear sRGB values are transformed into the CIE 1931 XYZ colour space using:
 
-$\begin{bmatrix}
-X\\
-Y\\
-Z
-\end{bmatrix}= \begin{bmatrix}
-0.4124 & 0.3576 & 0.1805 \\
-0.2126 & 0.7152 & 0.0415 \\
-0.0193 & 0.1192 & 0.9505
-\end{bmatrix}\begin{bmatrix}
-R_{sRGB} \\
-G_{sRGB} \\
-B_{sRGB}\end{bmatrix} \qquad \text{     }\left(4 \right )$
+
+<img src="https://latex.codecogs.com/png.image?\dpi{110}\bg{white}\begin{bmatrix}X\\Y\\Z\end{bmatrix}=\begin{bmatrix}0.4124&0.3576&0.1805\\0.2126&0.7152&0.0415\\0.0193&0.1192&0.9505\end{bmatrix}\begin{bmatrix}R_{sRGB}\\G_{sRGB}\\B_{sRGB}\end{bmatrix}\qquad\text{}\left(4\right)">
 
 In which the Y value corresponds to the luminance.
 

@@ -9,9 +9,8 @@ import math
 import sys
 import threading
 
-from eprint import eprint
-PRODUCER_PATH = os.environ.get('PRODUCER_PATH')
-PRODUCER_PATH = "/opt/ids-peak-with-ueyetl_2.7.1.0-16417_arm64/lib/ids/cti/ids_u3vgentl.cti"
+
+PRODUCER_PATH = f"{os.environ.get('IDS_PEAK_DIR')}/lib/ids/cti/ids_u3vgentl.cti"
 
 #Return Types
 CAM_IMAGE = "cam_image"
@@ -64,32 +63,42 @@ NS = "nanoseconds"
 NANOSECONDS = "nanoseconds"
 """ Nanoseconds """
 
+def open():
+    try:
+        return Camera()
+    except Exception as e:
+        return None
+        
+
+
 class Camera:
 
-    
-    def connect(self):
-        try:
-            self.harvester.update()
-            
-            # Create an image acquirer with auto chunk data update enabled
-            self.acquisition_params = ParameterSet()
-            self.acquisition_params.add(ParameterKey.ENABLE_AUTO_CHUNK_DATA_UPDATE, True)
-            self.device:ImageAcquirer = self.harvester.create(config=self.acquisition_params)
-            
-            self.nodemap:NodeMap = self.device.remote_device.node_map
-            self.data_stream = self.device.data_streams[0]
-            self.ds_nodemap: NodeMap= self.data_stream.node_map
-            #Set Buffer Handling Mode to Newest Only
-            self.ds_nodemap.StreamBufferHandlingMode.set_value("NewestOnly")
-            
-            #Reset device timestamp to zero
-            self.nodemap.TimestampReset.execute()
-            while not self.nodemap.TimestampReset.is_done():
-                sleep(0.1)
-            self.start_time = datetime.now()
 
-        except Exception as e:
-            traceback.print_exception(e)
+    def connect(self):
+
+        self.harvester.update()
+        
+        if len(self.harvester.device_info_list) == 0:
+            raise Exception("No devices found")
+
+        # Create an image acquirer with auto chunk data update enabled
+        self.acquisition_params = ParameterSet()
+        self.acquisition_params.add(ParameterKey.ENABLE_AUTO_CHUNK_DATA_UPDATE, True)
+        self.device:ImageAcquirer = self.harvester.create(config=self.acquisition_params)
+        
+        self.nodemap:NodeMap = self.device.remote_device.node_map
+        self.data_stream = self.device.data_streams[0]
+        self.ds_nodemap: NodeMap= self.data_stream.node_map
+        #Set Buffer Handling Mode to Newest Only
+        self.ds_nodemap.StreamBufferHandlingMode.set_value("NewestOnly")
+        
+        #Reset device timestamp to zero
+        self.nodemap.TimestampReset.execute()
+        while not self.nodemap.TimestampReset.is_done():
+            sleep(0.1)
+        self.start_time = datetime.now()
+        return True
+
 
 
     def __init__(self) -> None:
@@ -101,6 +110,7 @@ class Camera:
 
 
         self.connect()
+
         self.start_time = datetime.now()
 
         self.cap_thread:threading.Thread = None

@@ -4,13 +4,9 @@ import numpy as np
 import traceback
 from pathlib import Path
 from datetime import datetime
-import sys, os
-import warnings
-import math
-from eprint import eprint
-warnings.filterwarnings("ignore", module=".*colour.*")
+import sys
 
-import colour_demosaicing
+import math
 
 import luminance
 
@@ -135,7 +131,7 @@ class Cam_Image:
     
     
     
-    def _demosaic(self, method=Resources.AVERAGE_GREENS, pattern="RGGB"):    
+    def _demosaic(self, pattern="RGGB"):    
         if self._image_array is not None:
             return
         self._image_array = self.original_image_array.copy()
@@ -143,7 +139,7 @@ class Cam_Image:
         if self.format=="BayerRG8":
                     mode="RGB"
                     
-                    self._image_array : np.ndarray = debayer(self.original_image_array, method=method, pattern=pattern)
+                    self._image_array : np.ndarray = debayer(self.original_image_array, pattern=pattern)
 
         
         self._image : Image.Image = Image.fromarray(self._image_array, mode=mode)
@@ -266,14 +262,14 @@ class Cam_Image:
     @property
     def image(self) -> Image.Image:
         if self._image is None:
-            self._demosaic(method=Resources.AVERAGE_GREENS, pattern="RGGB")
+            self._demosaic(pattern="RGGB")
         return self._image
             
     
     @property
     def image_array(self) -> np.ndarray:
         if self._image_array is None:
-            self._demosaic(method=Resources.AVERAGE_GREENS, pattern="RGGB")
+            self._demosaic(pattern="RGGB")
         return self._image_array
     
     @property
@@ -506,8 +502,12 @@ def debayer_average_greens_method(image: np.ndarray, pattern:str) -> np.ndarray:
     Returns:
         np.ndarray: The debayered RGB image array.
     """
-    
-    red_mask, green_mask_1, blue_mask = colour_demosaicing.masks_CFA_Bayer(image.shape, pattern=pattern)
+    # Create masks for each channel
+    channels = {channel: np.zeros(image.shape).astype(np.bool_) for channel in "RGB"}
+    for channel, (y, x) in zip(pattern, [(0, 0), (0, 1), (1, 0), (1, 1)]):
+        channels[channel][y::2, x::2] = 1
+
+    red_mask, green_mask_1, blue_mask = channels["R"], channels["G"], channels["B"]
     green_mask_2 = green_mask_1.copy()
     green_mask_1[0::2] = 0
     green_mask_2[1::2] = 0
@@ -527,21 +527,13 @@ def debayer_average_greens_method(image: np.ndarray, pattern:str) -> np.ndarray:
     return rgb_array
 
         
-def debayer(image:np.ndarray, method="average_greens", pattern="RGGB")-> np.ndarray:
+def debayer(image:np.ndarray, pattern="RGGB")-> np.ndarray:
     """## Debayer or Demosaic an Image.
     
-    ### Possible methods: 
-        "menon"/"ddfapd": Demosaicing With Directional Filtering and a posteriori Decision (Menon 2007)
-        
-                            To use the Menon algorithm with the refining step, use "menon_r" or "ddafdp_r"
-        
-        "malvar":Malvar (2004) demosaicing algorithm
-        
-        "bilinear": bilinear interpolation
+
         
     Args:
         image (np.ndarray): Image Bayer array
-        method (str, optional): Debayering method. Defaults "menon"
         pattern (str, optional): Image Pattern: 
     Returns:
         np.ndarray: De-bayered RGB image array of shape (width, height, 3)
@@ -551,30 +543,8 @@ def debayer(image:np.ndarray, method="average_greens", pattern="RGGB")-> np.ndar
     
     bayer_array = image.astype(np.uint8)/255
     
-    debayered_array = None
-    
 
-   
-
-    # Debayering method switch case
-    match method:
-        # Menon Algorithm
-        case Resources.MENON_R: 
-            debayered_array = colour_demosaicing.demosaicing_CFA_Bayer_Menon2007(CFA=bayer_array, pattern=pattern)
-        case Resources.DDFAPD_R:
-            debayered_array = colour_demosaicing.demosaicing_CFA_Bayer_Menon2007(CFA=bayer_array, pattern=pattern)
-        case Resources.MENON: 
-            debayered_array = colour_demosaicing.demosaicing_CFA_Bayer_Menon2007(CFA=bayer_array, pattern=pattern, refining_step=False)
-        case Resources.DDFAPD:
-            debayered_array = colour_demosaicing.demosaicing_CFA_Bayer_Menon2007(CFA=bayer_array, pattern=pattern, refining_step=False)
-        # Malvar Algorithm
-        case Resources.MALVAR:
-            debayered_array = colour_demosaicing.demosaicing_CFA_Bayer_Malvar2004(CFA=bayer_array, pattern=pattern)
-        # Bilinear Interpolation    
-        case Resources.BILINEAR:
-            debayered_array = colour_demosaicing.demosaicing_CFA_Bayer_bilinear(CFA=bayer_array, pattern=pattern)
-        case Resources.AVERAGE_GREENS:
-            debayered_array = debayer_average_greens_method(bayer_array, pattern=pattern)
+    debayered_array = debayer_average_greens_method(bayer_array, pattern=pattern)
     
 
     #Normalise to between 0 and 255

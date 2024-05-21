@@ -1,7 +1,4 @@
-from PIL import Image
-from PIL.PngImagePlugin import PngInfo
 from pathlib import Path
-import numpy as np
 import json
 import cam_image
 import sys, os

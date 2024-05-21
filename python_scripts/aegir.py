@@ -1,24 +1,19 @@
 import argparse
 from pathlib import Path
 import json
-import os
+import os, sys
 from dotenv import load_dotenv
 import traceback
-import sys
 from datetime import datetime, timedelta
 from time import time, sleep
 
-
-  
-
-
 import ms5837
 
+import focus
 import routine
 import session
 import device_interface
 from device_interface import convert_time
-from cam_image import Cam_Image
 
 
 env_location = Path(__file__).parent.parent / ".env"
@@ -41,6 +36,35 @@ def main():
     otherwise it will exit with error code 1.
     
     """    
+
+      
+    #Argparse is a library used for parsing arguments passed to the script when it is called from the command line
+    parser = argparse.ArgumentParser(description='Get session and routine arguments')
+
+    # Set up the named arguments
+    parser.add_argument('--routine', required=False, help='Set routine name')
+    parser.add_argument('--session',required=False, help='Set session name')
+    parser.add_argument('--focus',action='store_true', required=False, help='Run focus check script')
+        
+
+    # Parse command line arguments
+    args = parser.parse_args()
+
+    # Access the values of named arguments
+    routine_name:str = args.routine
+    session_name:str = args.session
+    focus_check:bool = args.focus
+
+    if focus_check:
+        focus.run_focus_script()
+        sys.exit(0)
+
+
+    print_and_log(f'Routine Name: {routine_name}')
+    print_and_log(f'Session Name: {session_name}')
+    
+
+
     stored_strings = []
     
     current_session: session.Session = None
@@ -95,14 +119,11 @@ def main():
 
             if error is not None:
                 string += "\n"
-                string = "".join(traceback.format_exception(error))
-            string += "\n"
-            print(string, file=sys.stderr)
-            print_and_log(string)
+                string += "".join(traceback.format_exception(error))
+            print_and_log(string, error=True)
             if current_session is None:
                 with open(DATA_DIR / "sessions" / "error_log.log", "a") as log_file:
-                    log_file.write("---------------------------------------------------\n")
-                    log_file.write(string)
+                    log_file.write(f"{datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')}: {string}\n")
         except Exception as e:
             traceback.print_exception(e,file=sys.stderr)
         
@@ -143,19 +164,12 @@ def main():
 
    
     #Attempt to open connection to the device - exit with error code 1 if not
-    try:
-        
-        device = device_interface.Camera()
-        
-        if not device.connected:
-            print_and_log("Could not connect to Device")
-            log_error(message="Could not connect to Device")
-            sys.exit(1)
-    except Exception as e:
-        print_and_log("Could not connect to Device")
-        log_error(e)
+      
+    device = device_interface.open()
+    if not device:
+        log_error(message="Could not connect to Device")
         sys.exit(1)
-    
+
     #Attempt to open connection to the pressure sensor - exit with error code 1 if not
     
     try:
@@ -306,28 +320,7 @@ def main():
             log_error(e)
         
 
-     
-    #Argparse is a library used for parsing arguments passed to the script when it is called from the command line
-    parser = argparse.ArgumentParser(description='Get session and routine arguments')
-
-    # Set up the named arguments
-    parser.add_argument('--routine', help='Routine', required=True)
-    parser.add_argument('--session', help='Session', required=True)
-    parser.add_argument('--complete',action='store_true')
-        
-
-    # Parse command line arguments
-    args = parser.parse_args()
-
-    # Access the values of named arguments
-    routine_name:str = args.routine
-    session_name:str = args.session
-
-
-    print_and_log(f'Routine Name: {routine_name}')
-    print_and_log(f'Session Name: {session_name}')
-    
-
+   
     #Set the location of the routine files
     routine_dir=DATA_DIR / "routines"
     

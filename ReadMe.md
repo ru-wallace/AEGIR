@@ -132,9 +132,13 @@ For a monochromatic camera, relative luminance is simple, as the pixel values ar
 
 For a colour camera capturing data in 8bit RGB, a more complex process is used to ascertain relative luminance. Again the pixel values are normalised to between 0 and 1 by dividing by 255:
 
-$${C}'_{sRGB} = \frac{\left (C_{8bit}-KDC  \right )}{\left (WDC-KDC  \right )} \quad \left (1  \right )$$
+```math
+{C}'_{sRGB} = \frac{\left (C_{8bit}-KDC  \right )}{\left (WDC-KDC  \right )} \quad \left (1  \right )
+```
 
-$${C}'_{sRGB}=C_{8bit}\div{255}\qquad\qquad\text{}\left(2\right)$$
+```math
+{C}'_{sRGB}=C_{8bit}\div{255}\qquad\qquad\text{}\left(2\right)
+```
 
 
 
@@ -143,11 +147,12 @@ Where $C_{8bit}$ is the pixel value between 0 and 255 for each channel, KDC is t
 The camera captures data in the non linear sR'G'B' colour space. Using a procedure defined in *IEC Standard 61966-2-1/AMD1:2003 Section 5.2*, the pixel values are linearised:
 
 
-
-$$C_{sRGB} = \left\{\begin{matrix}
+```math
+C_{sRGB} = \left\{\begin{matrix}
 C'_{sRGB} \div 12.92 & \text{if }  C'_{sRGB} \leq 0.0405 \\ \\
 \left [ \frac{\left( C'_{sRGB} + 0.055 \right )}{1.055}  \right]^{2.4} & \text{if } C'_{sRGB} > 0.0405 \\
-\end{matrix}\right.  \quad \left (3 \right )$$
+\end{matrix}\right.  \quad \left (3 \right )
+```
 
 
 The mean value for each channel is taken for pixels within the [inner region](#image-regions), and the resulting linear sRGB values are transformed into the CIE 1931 XYZ colour space using:

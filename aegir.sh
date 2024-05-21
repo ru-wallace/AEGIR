@@ -1,9 +1,6 @@
 #!/bin/bash
 
-
-
-
-#SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+# Find the script directory
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
 
@@ -32,9 +29,9 @@ SESSION_NAME=""
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -h|--help)
-            echo "Usage: runcam [OPTIONS]"
+            echo "Usage: aegir [OPTIONS]"
             echo ""
-            echo "runcam is a tool for interfacing with IDS USB3Vision cameras and controlling auto-capture routines."
+            echo "aegir is a tool for interfacing with IDS USB3Vision cameras and controlling auto-capture routines."
             echo ""
             echo "Options:"
             echo "  -h, --help              Display this help message and exit"
@@ -45,18 +42,18 @@ while [[ $# -gt 0 ]]; do
             echo "                          Sub-options:"
             echo "                            --get          Get the value of the node"
             echo "                            --set [value]  Set the value of the node to [value]"
-            echo "  -q, --query             Check for active runcam process"
+            echo "  -q, --query             Check for active aegir process"
             echo "  -r, --routine FILE      Specify a routine file (default directory: ./routines in Aegir DATA_DIRECTORY)"
             echo "  -s, --session           Specify session name"
             echo "  -x, --stop              Send stop signal to currently running process"
             echo "      --run FILE          Run a python script with the environment set up by this tool (advanced users only)"
             echo ""
             echo "Examples:"
-            echo "  runcam --buffer 500         Set USB buffer size to 500mb"
-            echo "  runcam --focus              Test camera focus"
-            echo "  runcam --node \"ExposureTime\" --get"
+            echo "  aegir --buffer 500         Set USB buffer size to 500mb"
+            echo "  aegir --focus              Test camera focus"
+            echo "  aegir --node \"ExposureTime\" --get"
             echo "                          Get the value of node \"ExposureTime\""
-            echo "  runcam --node \"ExposureTime\" --set 1000"
+            echo "  aegir --node \"ExposureTime\" --set 1000"
             echo "                          Set the value of node \"ExposureTime\" to 1000 microseconds"
             echo ""
             exit 0
@@ -93,19 +90,19 @@ while [[ $# -gt 0 ]]; do
         -l|--log)
             echo -n "Checking for process..."
             if [ -p "$PIPE_OUT_FILE" ]; then
-                RUNCAM_STATUS=$(timeout 3 cat "$PIPE_OUT_FILE")
+                AEGIR_STATUS=$(timeout 3 cat "$PIPE_OUT_FILE")
                 echo -en "\e[K"
-                if [ -z "${RUNCAM_STATUS}" ]; then
-                    echo -e "\rNo Runcam processes detected"
+                if [ -z "${AEGIR_STATUS}" ]; then
+                    echo -e "\rNo Aegir processes detected"
                 else
-                    echo -e "\rStatus: $RUNCAM_STATUS"
-                    RUNCAM_SESSION_LINE=$(grep "^Session: " <<< "$RUNCAM_STATUS")
-                    RUNCAM_SESSION="${RUNCAM_SESSION_LINE#Session: }" 
-                    echo -e "Session: $RUNCAM_SESSION"
-                    tail -f "$DATA_DIRECTORY/sessions/$RUNCAM_SESSION/output.log"
+                    echo -e "\rStatus: $AEGIR_STATUS"
+                    AEGIR_SESSION_LINE=$(grep "^Session: " <<< "$AEGIR_STATUS")
+                    AEGIR_SESSION="${AEGIR_SESSION_LINE#Session: }" 
+                    echo -e "Session: $AEGIR_SESSION"
+                    tail -f "$DATA_DIRECTORY/sessions/$AEGIR_SESSION/output.log"
                 fi
             else
-                echo -e "\rNo Runcam processes detected"
+                echo -e "\rNo Aegir processes detected"
             fi
             exit 0
             ;;
@@ -123,7 +120,7 @@ while [[ $# -gt 0 ]]; do
                 echo "$(ids_devicecommand -n $NODE --get)"
                 exit 0
             else
-                echo "Error: No Node Name. Use 'runcam --node [node name] --get | --set [value]"
+                echo "Error: No Node Name. Use 'aegir --node [node name] --get | --set [value]"
                 exit 1
             fi
             ;;  
@@ -139,22 +136,22 @@ while [[ $# -gt 0 ]]; do
                 echo "$(ids_devicecommand -n $NODE --set $VALUE)"
                 exit 0
             else
-                echo "Error: No Node Name. Use 'runcam --node [node name] --get | --set [value]'"
+                echo "Error: No Node Name. Use 'aegir --node [node name] --get | --set [value]'"
                 exit 1
             fi
             ;;                      
         -q|--query)
             echo -n "Checking for process..."
             if [ -p "$PIPE_OUT_FILE" ]; then
-                RUNCAM_STATUS=$(timeout 3 cat "$PIPE_OUT_FILE")
+                AEGIR_STATUS=$(timeout 3 cat "$PIPE_OUT_FILE")
                 echo -en "\e[K"
-                if [ -z "${RUNCAM_STATUS}" ]; then
-                    echo -e "\rNo Runcam processes detected"
+                if [ -z "${AEGIR_STATUS}" ]; then
+                    echo -e "\rNo Aegir processes detected"
                 else
-                    echo -e "\rStatus: $RUNCAM_STATUS"
+                    echo -e "\rStatus: $AEGIR_STATUS"
                 fi
             else
-                echo -e "\rNo Runcam processes detected"
+                echo -e "\rNo Aegir processes detected"
             fi
             exit 0
             ;;
@@ -195,16 +192,16 @@ while [[ $# -gt 0 ]]; do
         -x|--stop)
             echo -n "Checking for process..."
             if ! [ -p "$PIPE_OUT_FILE" ]; then
-                echo -e "\rNo Runcam processes detected"
+                echo -e "\rNo Aegir processes detected"
                 exit 0
             fi
-            RUNCAM_STATUS=$(timeout 3 cat "$PIPE_OUT_FILE")
-            if [ -z "${RUNCAM_STATUS}" ]; then
-                echo -e "\rNo Runcam processes detected"
+            AEGIR_STATUS=$(timeout 3 cat "$PIPE_OUT_FILE")
+            if [ -z "${AEGIR_STATUS}" ]; then
+                echo -e "\rNo Aegir processes detected"
                 exit 0
             fi
             echo -e "\rProcess found:\e[K"
-            echo "$RUNCAM_STATUS"
+            echo "$AEGIR_STATUS"
             echo "Stopping Process..."
             echo -n "STOP" > "$PIPE_IN_FILE" &
             sleep .5
@@ -220,7 +217,7 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         *)
-            echo "Error: Unknown option $1 - Use runcam -h or --help for commands" >&2
+            echo "Error: Unknown option $1 - Use aegir -h or --help for commands" >&2
             exit 1
             ;;
     esac
@@ -249,12 +246,12 @@ if [ -n "$RUN_FOCUS" ]; then
 fi
 
 if [ -z "$ROUTINE_FILE" ]; then
-    echo "Error: Required argument -r/--routine is missing. Use runcam --help for help." >&2
+    echo "Error: Required argument -r/--routine is missing. Use aegir --help for help." >&2
     exit 1
 fi
 
 if [ -z "$SESSION_NAME" ]; then
-    echo "Error: Required argument -s/--session is missing. Use runcam --help for help." >&2
+    echo "Error: Required argument -s/--session is missing. Use aegir --help for help." >&2
     exit 1
 fi
 
@@ -262,25 +259,25 @@ USB_BUFFER_SIZE="$(cat "$USB_MEMORY_FILE")"
 
 if [ "$USB_BUFFER_SIZE" -lt 1000 ]; then
         echo "Warning: USB buffer size is less than 1000mb. This is likely to cause errors during camera use."
-        echo "Please run 'runcam -b' as root to increase the buffer size."
+        echo "Please run 'aegir -b' as root to increase the buffer size."
 fi
 
 
 echo -n "Checking for already running process..."
 if [ -p "$PIPE_OUT_FILE" ]; then
-    RUNCAM_STATUS=$(timeout 3 cat "$PIPE_OUT_FILE")
+    AEGIR_STATUS=$(timeout 3 cat "$PIPE_OUT_FILE")
     echo -en "\e[K"
-    if [ -z "${RUNCAM_STATUS}" ]; then
-        echo -e "\rNo Runcam processes detected            "
+    if [ -z "${AEGIR_STATUS}" ]; then
+        echo -e "\rNo Aegir processes detected            "
     else
-        echo -e "\rRuncam process already running:         "
-        echo "$RUNCAM_STATUS"
-        echo "Use 'runcam -x' to stop a currently running process"
+        echo -e "\rAegir process already running:         "
+        echo "$AEGIR_STATUS"
+        echo "Use 'aegir -x' to stop a currently running process"
         echo "Exiting..."
         exit 1
     fi
 else
-    echo -e "\rNo Runcam processes detected            "
+    echo -e "\rNo Aegir processes detected            "
 fi
 
 

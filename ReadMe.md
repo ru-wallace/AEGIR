@@ -166,7 +166,8 @@ R_{sRGB} \\
 G_{sRGB} \\
 B_{sRGB}\end{bmatrix} \qquad \text{     }\left(4 \right )
 
-```math
+```
+
 In which the Y value corresponds to the luminance.
 
 ##### Absolute Luminance

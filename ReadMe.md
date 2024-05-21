@@ -132,26 +132,38 @@ For a monochromatic camera, relative luminance is simple, as the pixel values ar
 
 For a colour camera capturing data in 8bit RGB, a more complex process is used to ascertain relative luminance. Again the pixel values are normalised to between 0 and 1 by dividing by 255:
 
-<img src="https://latex.codecogs.com/png.image?\dpi{110}\bg{white}{C}'_{sRGB}=\frac{\left(C_{8bit}-KDC\right)}{\left(WDC-KDC\right)}\quad\text{  }\left(1\right)">
+$${C}'_{sRGB} = \frac{\left (C_{8bit}-KDC  \right )}{\left (WDC-KDC  \right )} \quad \left (1  \right )$$
+
+$${C}'_{sRGB}=C_{8bit}\div{255}\qquad\qquad\text{}\left(2\right)$$
 
 
-<img src="https://latex.codecogs.com/png.image?\dpi{110}\bg{white}{C}'_{sRGB}=C_{8bit}\div{255}\qquad\qquad\text{ }\left(2\right)">
 
-
-
-Where <img src="https://latex.codecogs.com/png.image?\inline&space;\bg{white}\dpi{110}C_{8bit}"> is the pixel value between 0 and 255 for each channel, KDC is the black digital count of 0, and WDC is the white digital count of 255.
+Where $C_{8bit}$ is the pixel value between 0 and 255 for each channel, KDC is the black digital count of 0, and WDC is the white digital count of 255.
 
 The camera captures data in the non linear sR'G'B' colour space. Using a procedure defined in *IEC Standard 61966-2-1/AMD1:2003 Section 5.2*, the pixel values are linearised:
 
 
-<img src="https://latex.codecogs.com/png.image?\dpi{110}\bg{white}C_{sRGB}=\left\{\begin{matrix}C'_{sRGB}\div&space;12.92&\text{if}C'_{sRGB}\leq&space;0.0405\\\left[\frac{\left(C'_{sRGB}&plus;0.055\right)}{1.055}\right]^{2.4}&\text{if}C'_{sRGB}>0.0405\\\end{matrix}\right.\quad\left(3\right)">
+
+$$C_{sRGB} = \left\{\begin{matrix}
+C'_{sRGB} \div 12.92 & \text{if }  C'_{sRGB} \leq 0.0405 \\ \\
+\left [ \frac{\left( C'_{sRGB} + 0.055 \right )}{1.055}  \right]^{2.4} & \text{if } C'_{sRGB} > 0.0405 \\
+\end{matrix}\right.  \quad \left (3 \right )$$
 
 
 The mean value for each channel is taken for pixels within the [inner region](#image-regions), and the resulting linear sRGB values are transformed into the CIE 1931 XYZ colour space using:
 
-
-<img src="https://latex.codecogs.com/png.image?\dpi{110}\bg{white}\begin{bmatrix}X\\Y\\Z\end{bmatrix}=\begin{bmatrix}0.4124&0.3576&0.1805\\0.2126&0.7152&0.0415\\0.0193&0.1192&0.9505\end{bmatrix}\begin{bmatrix}R_{sRGB}\\G_{sRGB}\\B_{sRGB}\end{bmatrix}\qquad\text{}\left(4\right)">
-
+$$\begin{bmatrix}
+X\\
+Y\\
+Z
+\end{bmatrix}= \begin{bmatrix}
+0.4124 & 0.3576 & 0.1805 \\
+0.2126 & 0.7152 & 0.0415 \\
+0.0193 & 0.1192 & 0.9505
+\end{bmatrix}\begin{bmatrix}
+R_{sRGB} \\
+G_{sRGB} \\
+B_{sRGB}\end{bmatrix} \qquad \text{     }\left(4 \right )$$
 In which the Y value corresponds to the luminance.
 
 ##### Absolute Luminance

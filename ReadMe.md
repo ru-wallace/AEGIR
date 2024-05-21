@@ -68,10 +68,10 @@ The tools will only work on Linux based operating systems. The system is designe
 -   ```-f, --focus``` : Run the focus.py script to assist in focusing the camera. This uses a simple derivative across both axes of the image to find 'edges'. Note that the number given is not an absolute number, but is relative depending on what the camera is pointing at. The derivative updates every second or so in the terminal, and by adjusting the focus on the camera while watching this, the user can find the peak.
 -  ```-n, --node [node name]``` : Uses the ids_peak library scripts to access control and information nodes on the camera. Use
   
-    - ```aegir -n [node name] --get```to access the node value.
+    - ```aegir -n [node name] --get``` to access the node value.
     - ```aegir -n [node name] --set [value]``` to set the node value.
 
-   Note that the node name must be a valid node name for the camera, and the value must be a valid value for the node. Not all nodes are accessible depending on the state of the camera.
+   Note that the node name must be a valid node name for the camera, and the value must be a valid value for the node. Not all nodes are accessible depending on the model and state of the camera.
 -  ```-r, --routine [routine name]``` : Run a routine from the routines directory. The routine must be a python script which uses the aegir library. The routine must be in the routines subdirectory within the [data directory](#data-directory), and the name given may be the routine name with or without the file extension. 
 
    The routine will run in the background, though any error or warning messages will be output to ``stderr`` - usually meaning they will be displayed in the terminal.

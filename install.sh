@@ -35,7 +35,7 @@ USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
 AEGIR_SYMBOLIC_LINK="/usr/local/bin/aegir"
 AGR_SYMBOLIC_LINK="/usr/local/bin/agr"
 
-# Check if runcam symbolic link exists
+# Check if aegir symbolic link exists
 if [ -L "$AEGIR_SYMBOLIC_LINK" ]; then
     rm "$AEGIR_SYMBOLIC_LINK"
 fi
@@ -122,7 +122,7 @@ echo "PIPE_OUT_FILE=\"/tmp/AEGIR_OUT\"" >> "$ENV_FILE"
 chown -R $SUDO_USER: "$ENV_FILE"
 
 
-echo "Creating symbolic link for runcam..."
+echo "Creating symbolic link for aegir..."
 
 ln -s "$BASE_DIR/aegir.sh" "$AEGIR_SYMBOLIC_LINK"
 ln -s "$BASE_DIR/aegir.sh" "$AGR_SYMBOLIC_LINK"

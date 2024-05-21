@@ -1,6 +1,6 @@
 # $\Huge{\texttt{AEGIR}}$
 
-$\Huge{A}\large{\text{rtifically and }}\Huge{E}\large{\text{nvironmentally }}\Huge{G}\large{\text{enerated }}\Huge{I}\large{\text{rradiance and }}\Huge{R}\large{\text{adiance}}$
+$\Huge{A}\large{\text{rtifically and }}\Huge{E}\large{\text{nvironmental ni}}\Huge{G}\large{\text{httime }}\Huge{I}\large{\text{rradiance and }}\Huge{R}\large{\text{adiance}}$
 
 
 

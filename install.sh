@@ -17,13 +17,13 @@ if ! conda env list | grep -q -w "$CONDA_ENV_NAME"; then
     read -e -p "Create conda environment '$CONDA_ENV_NAME'? [Y/n]" CREATE_CONDA_ENV
     if [ "$CREATE_CONDA_ENV" == "" ]; then
         CREATE_CONDA_ENV="y"
-    
+    fi
     if [ "$CREATE_CONDA_ENV" == "y" ]; then
         echo "Creating conda environment '$CONDA_ENV_NAME'..."
         conda env create -f environment.yml
     else
         echo "Skipping conda environment creation. Aegir may not work properly without the conda environment."
-    
+    fi
     
 fi
 

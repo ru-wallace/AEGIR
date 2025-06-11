@@ -5,10 +5,11 @@ import traceback
 from pathlib import Path
 from datetime import datetime
 import sys
-
+import logging
 import math
 
 import luminance
+
 
 
 class Resources:
@@ -81,7 +82,7 @@ class Cam_Image:
             self._unscaled_absolute_luminance = None
             
             
-            self._number = None
+            self._number = number if number is not None else -1
             
             #remove extra empty dimensions
             image = image.squeeze().astype(np.uint8)
@@ -126,7 +127,7 @@ class Cam_Image:
             self._environment_temp : float = environment_temp
             
         except Exception as e:
-            traceback.print_exception(e)
+            logging.exception(f"(Cam_Image #{number}): Error creating Cam_Image instance")
             
     
     
@@ -226,10 +227,10 @@ class Cam_Image:
         if self._centre_mask is None:
             self._create_masks()
         #Calculate the fraction of pixels saturated in the active circle
-        self._inner_saturation_fraction = get_fraction_saturated_pixels(self._image, mask=self._centre_mask, saturation_threshold=self.saturation_threshold)
+        self._inner_saturation_fraction = get_fraction_saturated_pixels(self._image_array, mask=self._centre_mask, saturation_threshold=self.saturation_threshold)
         
         #Calculate the fraction of pixels saturated in the outer dark area
-        self._outer_saturation_fraction = get_fraction_saturated_pixels(self._image, mask=self._outer_mask, saturation_threshold=self.saturation_threshold)
+        self._outer_saturation_fraction = get_fraction_saturated_pixels(self._image_array, mask=self._outer_mask, saturation_threshold=self.saturation_threshold)
 
         #Calculate the fraction of pixels saturated in the corners
         self._corner_saturation_fraction = get_fraction_saturated_pixels(self._image_array, mask=self._corner_mask, saturation_threshold=self.saturation_threshold)
@@ -459,9 +460,9 @@ class Cam_Image:
         Does not work when in ssh mode (Unless you do some fiddly stuff).
         """        
         try:
-            self.image.show()
+            self.image.show(f"Cam Image #{self.number}")
         except Exception as e:
-            traceback.print_exception(e) 
+            logging.exception(f"(Cam_Image #{self.number}): Error showing image.\nThis function is not possible when using a remote shell.")
             
     def save(self, path:str|Path, additional_metadata:dict=None) -> bool:
         """Save: Save Image using PIL Image.Image.save() function. Also saves image
@@ -475,18 +476,18 @@ class Cam_Image:
             bool: True if saving is successful, False otherwise
         """        
 
-            
-        metadata = self.metadata(additional_items=additional_metadata)
-        
-        
-        if isinstance(path, str):
-            try:
-                path = Path(path)
-            except:
-                print("Saving unsuccessful: unable to resolve file path")
-                return False
-        self.image.save(path, pnginfo=metadata)
-        return True
+        try:
+
+            metadata = self.metadata(additional_items=additional_metadata)
+
+            path = Path(path)
+
+            self.image.save(path, pnginfo=metadata)
+            logging.info(f"Saved image {self.number} to {path}")
+            return True
+        except:
+            logging.exception(f"Error saving image {self.number} to {path}")
+            return False
 
             
 #functions
@@ -580,7 +581,16 @@ def create_metadata(image:Cam_Image, additional_items:dict=None) ->PngInfo:
         return metadata
        
     except Exception as e:
-        traceback.print_exception(e)     
+        logging.exception(f"Error creating metadata for image #{image.number}")    
+
+def get_fast_saturation_fraction(image:Cam_Image, saturation_threshold:int=255):
+
+    original_array = image._original_image_array
+    circle_mask = create_circle_mask(original_array, (1226, 1034), 472)
+    fraction = get_fraction_saturated_pixels(original_array, circle_mask, saturation_threshold=saturation_threshold)
+    return fraction
+
+
         
         
 def get_fraction_saturated_pixels(image: Image.Image, mask: Image.Image = None, invert_mask:bool=False, saturation_threshold:int=255) -> float:
@@ -597,43 +607,35 @@ def get_fraction_saturated_pixels(image: Image.Image, mask: Image.Image = None, 
     Returns:
         float: Fraction of pixels which are saturated.
     """    
-    try: 
-        
-        
-        image_array = np.array(image)
-        
-        mask_bool = np.full(image_array.shape, True)
-          
-        if mask is not None:
-            mask_image_array = np.array(mask)
-            mask_bool = mask_image_array > 100
-        
-        
-        if invert_mask:
-                mask_bool  = np.invert(mask_bool) 
 
+    
+    image_array = np.array(image)
+    
+    mask_bool = np.full(image_array.shape, True)
         
-        masked_array = image_array[mask_bool]
-                
-        total_pixels = masked_array.size
-        
-        number_saturated  = np.size(masked_array[masked_array > saturation_threshold])
+    if mask is not None:
+        mask_image_array = np.array(mask)
+        mask_bool = mask_image_array > 100
+    
+    
+    if invert_mask:
+            mask_bool  = np.invert(mask_bool) 
 
-        fraction_saturated = number_saturated/total_pixels
-        
+    
+    masked_array = image_array[mask_bool]
+            
+    total_pixels = masked_array.size
+    
+    number_saturated  = np.size(masked_array[masked_array > saturation_threshold])
 
-        
-        
-        return fraction_saturated
-    except IndexError as e:
-        print("Error: ", file=sys.stderr)
-        print(f"image_array shape: {image_array.shape}", file=sys.stderr)
-        print(f"image_array size: {image_array.size}", file=sys.stderr)
-        print(f"mask_bool shape: {mask_bool.shape}", file=sys.stderr)
-        print(f"masked_array size: {mask_bool.size}", file=sys.stderr)
-        traceback.print_exception(e)
-    except Exception as e:
-        traceback.print_exception(e)
+    fraction_saturated = number_saturated/total_pixels
+    
+
+    
+    
+    return fraction_saturated
+
+
             
 def get_pixel_averages_for_channels(image:Image.Image, mask:Image.Image=None, invert_mask:bool = False, saturation_threshold:int=255) ->tuple[float]:
     """Calculate the average pixel value for each channel. If a mask if provided, calculates for only active area.
@@ -687,52 +689,47 @@ def create_circle_mask(image:np.ndarray, centre:tuple, radius:int|list) -> Image
     
     x,y = centre
     
-    try:
-        initial_radius = radius
-        if isinstance(radius, list):
-            if not isinstance(radius[0], list):
-                radius = [radius,]
-            
-            radius.sort(key=lambda x: x[1], reverse=True)
-        else:
-            radius = [[0, radius],]
-        
-        height, width = image.shape[0:2]
-        mode = "L"
-        if len(image.shape) > 2:
-            mode = "RGB"
-        
-        mask = Image.new(mode=mode, size=(width, height), color='black')
-        draw = ImageDraw.Draw(mask)
-        
-        for band in radius:
-            
-            r_white_circle = max(band)
-            r_black_circle = min(band)
 
-            w_left = x-r_white_circle
-            w_right = x+r_white_circle
-            w_top = y-r_white_circle
-            w_bottom = y+r_white_circle
-            
-            draw.ellipse((w_left, w_top, w_right, w_bottom), fill='white')
-            
-            if r_black_circle > 1:
-                b_left = x-r_black_circle
-                b_right = x+r_black_circle
-                b_top = y-r_black_circle
-                b_bottom = y+r_black_circle
-                
-                draw.ellipse((b_left, b_top, b_right, b_bottom), fill='black')
-   
-        return mask
-
-    except Exception as e:
-        print("Initial Radius: ", initial_radius, file=sys.stderr)
-        print("Radius: ", radius, file=sys.stderr)
-        traceback.print_exception(e, file=sys.stderr)
-        raise Exception("AAAgggh")
+    initial_radius = radius
+    if isinstance(radius, list):
+        if not isinstance(radius[0], list):
+            radius = [radius,]
+        
+        radius.sort(key=lambda x: x[1], reverse=True)
+    else:
+        radius = [[0, radius],]
     
+    height, width = image.shape[0:2]
+    mode = "L"
+    if len(image.shape) > 2:
+        mode = "RGB"
+    
+    mask = Image.new(mode=mode, size=(width, height), color='black')
+    draw = ImageDraw.Draw(mask)
+    
+    for band in radius:
+        
+        r_white_circle = max(band)
+        r_black_circle = min(band)
+
+        w_left = x-r_white_circle
+        w_right = x+r_white_circle
+        w_top = y-r_white_circle
+        w_bottom = y+r_white_circle
+        
+        draw.ellipse((w_left, w_top, w_right, w_bottom), fill='white')
+        
+        if r_black_circle > 1:
+            b_left = x-r_black_circle
+            b_right = x+r_black_circle
+            b_top = y-r_black_circle
+            b_bottom = y+r_black_circle
+            
+            draw.ellipse((b_left, b_top, b_right, b_bottom), fill='black')
+
+    return mask
+
+
 
 def create_corner_mask(image:np.ndarray, radius:int)->Image.Image:
     """Create a mask image for the passed in image with a circle of the set radius

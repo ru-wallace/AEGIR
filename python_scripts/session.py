@@ -1,3 +1,4 @@
+import logging.handlers
 from pathlib import Path
 import json
 import cam_image
@@ -5,8 +6,11 @@ import sys, os
 from dotenv import load_dotenv
 import traceback
 import threading, queue
-
+import logging
 from datetime import datetime
+
+
+logger = logging.getLogger()
 
 #Load environment variables
 dot_env_path = Path(__file__).parent.parent / ".env"
@@ -15,11 +19,9 @@ load_dotenv(dotenv_path=dot_env_path)
 DATA_DIR =  Path(os.environ.get("DATA_DIRECTORY"))
 PRETTY_FORMAT = "%Y-%m-%d %H:%M:%S"
 FILEPATH_FORMAT = "%Y_%m_%d__%H_%M_%S"
-        
-
 class Session:
     
-    def __init__(self, name:str|None=None, start_time:datetime|None = None, directory:str|None=None, images:dict=None) -> None:
+    def __init__(self, name:str|None=None, start_time:datetime|None = None, directory:str|None=None, images:dict=None, log_queue:queue.Queue=None) -> None:
         try:
             
             if start_time is None:
@@ -29,7 +31,7 @@ class Session:
             
             
             if name is None or name == "":
-                self.name:str = f"session_{self.start_time_string(FILEPATH_FORMAT)}"
+                self.name:str = f"{self.start_time_string(FILEPATH_FORMAT)}"
             else:
                 self.name:str = name.strip()
                 
@@ -50,8 +52,9 @@ class Session:
             self.session_list_file = self.parent_directory / "session_list.json"
             
             self.image_directory.mkdir(parents=True, exist_ok=True)
-                      
-           
+            self.processing_queue = threading.Event()
+            self.queue_shutdown = threading.Event()
+            self.finished_processing = threading.Event()
             self.images:list[dict]=[]
             
             if images is None:
@@ -60,9 +63,19 @@ class Session:
                 self.images = images
                 self.last_updated = datetime.strptime(self.images[-1]['time'], PRETTY_FORMAT)
                 
-                
-            
-            
+                    
+            self.log_queue = log_queue if log_queue is not None else queue.Queue()
+            file_handler = logging.FileHandler(self.output_file_path)
+            file_handler.setLevel(logging.DEBUG)
+
+            #logging_formatter = logging.Formatter('%(message)s')
+
+            #file_handler.setFormatter(logging_formatter)
+
+            self.logging_queue_listener = logging.handlers.QueueListener(self.log_queue, file_handler, respect_handler_level=True)
+
+            self.logging_queue_listener.start()
+
             self.update_session_list()  
             self.write_to_log()
             
@@ -70,7 +83,9 @@ class Session:
             
             
         except Exception as e:
-            traceback.print_exception(e, file=sys.stderr)
+            logger.critical("Error initiating session", exc_info=True)
+            # traceback.print_exception(e, file=sys.stderr)
+            raise e
     
     @property
     def details(self) -> dict:
@@ -106,33 +121,62 @@ class Session:
         if self.images is not None:
             return len(self.images)
     
-    def add_image_to_queue(self, image:cam_image.Cam_Image):
-        self.image_queue.put(image)
+    def add_image_to_queue(self, image:cam_image.Cam_Image|None):
+        
+        if image is None:
+            logger.info("Adding sentinel value to processing queue")
+        else:
+            logger.info("Adding image to queue")
+        if self.queue_shutdown.is_set():
+            logger.error("Processing queue is closed. Item not added.")
+        else:
+            self.image_queue.put(image)
+        logger.info(f"Processing queue length: {self.queue_length}")
             
     def start_processing_queue(self):
+        logger.info("Starting processing queue")
         process_thread = threading.Thread(target=self.process_image_queue)
         process_thread.daemon = True
+        self.queue_shutdown.clear()
+        self.processing_queue.set()
+        self.finished_processing.clear()
         process_thread.start()
         
     def stop_processing_queue(self):
-        self.image_queue.join()
+        self.add_image_to_queue(None)
+        self.queue_shutdown.set()
+        logging.info("Waiting to process remaining images")
+        self.finished_processing.wait()
+        logging.info("Finished processing last image")
     
     def process_image_queue(self) -> bool:
         while True:
-            image = self.image_queue.get() 
-                           
+            image = self.image_queue.get()
+            
+            if image is None:
+
+                logging.info("Processing queue: Sentinel value received")
+                self.image_queue.task_done()
+                if not self.image_queue.empty():
+                    logging.error("Processing queue: Sentinel value received but queue is not empty")
+                break
             try:
                 image = self.add_image(image)
-                self.output(f"Processing image {image.number} - Queue size {self.queue_length}")
+                logger.info(f"Processing image {image.number} - Queue size {self.queue_length}")
+                # self.output(f"Processing image {image.number} - Queue size {self.queue_length}")
             except Exception as e:
-                self.output("Warning: couldn't add image to session.images", error=True)
-                self.output(traceback.format_exception(e), error=True)
+                logger.error("Couldn't add image to session.images")
+                logger.exception(e, stack_info=True)
+                # self.output("Warning: couldn't add image to session.images", error=True)
+                # self.output(traceback.format_exception(e), error=True)
             
             try:
                 self.update_session_list()
             except Exception as e:
-                self.output("Warning: couldn't update session_list", error=True)
-                self.output(traceback.format_exception(e), error=True)
+                # self.output("Warning: couldn't update session_list", error=True)
+                # self.output(traceback.format_exception(e), error=True)
+                logger.error("Couldn't update session_list")
+                logger.exception(e, stack_info=True)
                                             
             
             try:        
@@ -140,22 +184,31 @@ class Session:
                 
                 image.save(image_location, additional_metadata={"session" : self.name})
             except Exception as e:
-                self.output(f"Warning: couldn't save image {self.image_count-1}", error=True)
-                self.output(traceback.format_exception(e), error=True)
+                logger.error(f"Couldn't save image {self.image_count-1}")
+                logger.exception(e, stack_info=True)
+                # self.output(f"Warning: couldn't save image {self.image_count-1}", error=True)
+                # self.output(traceback.format_exception(e), error=True)
                                             
             try:    
                 self.write_to_log()
             except Exception as e:
-                self.output("Warning: couldn't write to log", error=True)
-                self.output(traceback.format_exception(e), error=True)
+            #     self.output("Warning: couldn't write to meta file", error=True)
+            #     self.output(traceback.format_exception(e), error=True)
+                logger.error(f"Couldn't write to meta file")
+                logger.exception(e, stack_info=True)
             try:                                
                 self.write_to_csv(image)
             except Exception as e:
-                self.output("Warning: couldn't add image details to csv", error=True)
-                self.output(traceback.format_exception(e), error=True)
-            self.output(f"Finished processing image {image.number} - Queue size {self.queue_length}")
-            self.image_queue.task_done()                          
-            
+                # self.output("Warning: couldn't add image details to csv", error=True)
+                # self.output(traceback.format_exception(e), error=True)
+                logger.error(f"Couldn't add image details to csv")
+                logger.exception(e, stack_info=True)                
+            logging.info(f"Finished processing image {image.number} - Queue size {self.queue_length}")
+            self.image_queue.task_done()   
+
+        logging.info("Processing queue: Exited processing loop.")
+        self.processing_queue.clear()
+        self.finished_processing.set()
 
     def write_to_log(self) -> bool:
             log = self.details
@@ -209,7 +262,12 @@ class Session:
     def print_info(self):
         print("Session Info")
         for key, value in self.details.items():
-            print(f"{key.rjust(18)}: {value}")       
+            print(f"{key.rjust(18)}: {value}") 
+
+    def log_info(self):
+        logger.info(f"Session '{self.name}' info:")
+        for key, value in self.details.items():
+            logger.info(f"{key.rjust(18)}: {value}")      
          
     def __str__(self):
         string = ""
@@ -248,7 +306,7 @@ def from_file(path:str|Path) -> Session:
     try:
         log_file = Path(path) / "session.json"
         if not log_file.exists():
-            print("Session does not exist")
+            logger.warning(f"Session file {log_file} does not exist")
             return None
         
         session_dict = {}
@@ -261,13 +319,11 @@ def from_file(path:str|Path) -> Session:
         path = session_dict["path"]
         session = Session(name=name, start_time=start_time, directory=path, images=session_dict['images'])
         
-        print("Opened session:")
-        session.print_info()
         
         return session
     
     
     except Exception as e:
-        traceback.print_exception(e)
+        logger.exception("Error loading session from file")
         return None
     

@@ -1,10 +1,23 @@
 #!/bin/bash
 
 # Find the script directory
-SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+# SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
 
-ENV_FILE="$SCRIPT_DIR/.env"
+CONFIG_FILE="/etc/${TOOL_LOWER}/${TOOL_LOWER}.conf"
+
+if [[ -f "$CONFIG_FILE" ]]
+then
+    # CONF file contains ENV_FILE variable, load it
+    export $(grep -v '^#' "$CONFIG_FILE" | xargs)
+else
+    echo "Error: Configuration file $CONFIG_FILE not found."
+    exit 1
+fi
+
+
+BASE_DIR="$(dirname "$ENV_FILE")"
+AUTOSTART_FILE="/etc/${TOOL_LOWER}/.autostart"
 
 if [ -f "$ENV_FILE" ]
     then # load environment variables from .env file
@@ -24,36 +37,75 @@ USB_MEMORY_FILE="/sys/module/usbcore/parameters/usbfs_memory_mb"
 ROUTINE_FILE=""
 SESSION_NAME=""
 
+RED="\e[31m"
+GREEN="\e[32m"
+LBLUE="\e[94m"
+ENDCOLOUR="\e[0m"
+
+query_autostart () {
+    if [[ ! -e "$AUTOSTART_FILE" ]]; then
+        echo -e "Autostart: ${RED}disabled${ENDCOLOUR}"
+        return 0
+    fi
+    
+    ROUTINE=$(sed -n '1{p;q}' "$AUTOSTART_FILE")
+    SESSION=$(sed -n '2{p;q}' "$AUTOSTART_FILE")
+
+    if [ -n "$ROUTINE" ]; then
+        echo -e "Autostart:  ${LBLUE}enabled${ENDCOLOUR}"
+        echo "Routine: $ROUTINE"
+    else
+        echo "${RED}Error${ENDCOLOUR}: Autostart enabled but routine not set" >&2
+        exit 1
+    fi
+
+    if [ -n "$SESSION" ]; then
+        echo "Session: $SESSION"
+    fi
+
+    return 0
+}
+
+
+
 
 # Parse options
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -h|--help)
-            echo "Usage: aegir [OPTIONS]"
+            echo "Usage: ${TOOL_LOWER} [OPTIONS]"
             echo ""
-            echo "aegir is a tool for interfacing with IDS USB3Vision cameras and controlling auto-capture routines."
+            echo "${TOOL_LOWER} is a tool for interfacing with IDS USB3Vision cameras and controlling auto-capture routines."
             echo ""
             echo "Options:"
-            echo "  -h, --help              Display this help message and exit"
-            echo "  -b, --buffer [size]     Set USB buffer size for this Linux device to [size]mb (default: 1000)"
-            echo "  -f, --focus             Test camera focus"
-            echo "  -l, --log               View output log of current active process"
-            echo "  -n, --node [name]       Get or set value of a device node by name"
-            echo "                          Sub-options:"
-            echo "                            --get          Get the value of the node"
-            echo "                            --set [value]  Set the value of the node to [value]"
-            echo "  -q, --query             Check for active aegir process"
-            echo "  -r, --routine FILE      Specify a routine file (default directory: ./routines in Aegir DATA_DIRECTORY)"
-            echo "  -s, --session           Specify session name"
-            echo "  -x, --stop              Send stop signal to currently running process"
-            echo "      --run FILE          Run a python script with the environment set up by this tool (advanced users only)"
+            echo "  -h, --help                          Display this help message and exit"
+            echo "  -b, --buffer [size]                 Set USB buffer size for this Linux device to [size]mb (default: 1000)"
+            echo "  -f, --focus                         Test camera focus"
+            echo "  -l, --log                           View output log of current active process"
+            echo "  -n, --node [name]                   Get or set value of a device node by name"
+            echo "                                      Sub-options:"
+            echo "                                        --get          Get the value of the node"
+            echo "                                        --set [value]  Set the value of the node to [value]"
+            echo "  -q, --query                         Check for active ${TOOL_LOWER} process"
+            echo "  -r, --routine [routine_name]        Specify a routine file (default directory: ./routines in Aegir DATA_DIRECTORY)"
+            echo "  -s, --session [session_name]        Specify session name"
+            echo "  -x, --stop                          Send stop signal to currently running process"
+            echo "      --run FILE                      Run a python script with the environment set up by this tool (advanced users only)"
+            echo "  autostart [OPTIONS]        Manage autostart settings"
+            echo "      --enable, -e                  Enable autostart with routine. Requires -r/--routine to be set."
+            echo "      --routine, -r [routine_name]  Specify routine file to run on autostart (default directory: ./routines in Aegir DATA_DIRECTORY)"
+            echo "      --session, -s [session_name]  Specify session name for autostart routine. If not set, a the starting timestamp will be used."
+            echo "      --disable, -d                 Disable autostart"
+            echo "      --query, -q                   Query current autostart settings"
+            echo "      --start                       Start autostart routine immediately"
+        
             echo ""
             echo "Examples:"
-            echo "  aegir --buffer 500         Set USB buffer size to 500mb"
-            echo "  aegir --focus              Test camera focus"
-            echo "  aegir --node \"ExposureTime\" --get"
+            echo "  ${TOOL_LOWER} --buffer 500         Set USB buffer size to 500mb"
+            echo "  ${TOOL_LOWER} --focus              Test camera focus"
+            echo "  ${TOOL_LOWER} --node \"ExposureTime\" --get"
             echo "                          Get the value of node \"ExposureTime\""
-            echo "  aegir --node \"ExposureTime\" --set 1000"
+            echo "  ${TOOL_LOWER} --node \"ExposureTime\" --set 1000"
             echo "                          Set the value of node \"ExposureTime\" to 1000 microseconds"
             echo ""
             exit 0
@@ -120,7 +172,7 @@ while [[ $# -gt 0 ]]; do
                 echo "$(ids_devicecommand -n $NODE --get)"
                 exit 0
             else
-                echo "Error: No Node Name. Use 'aegir --node [node name] --get | --set [value]"
+                echo "Error: No Node Name. Use '${TOOL_LOWER} --node [node name] --get | --set [value]"
                 exit 1
             fi
             ;;  
@@ -136,7 +188,7 @@ while [[ $# -gt 0 ]]; do
                 echo "$(ids_devicecommand -n $NODE --set $VALUE)"
                 exit 0
             else
-                echo "Error: No Node Name. Use 'aegir --node [node name] --get | --set [value]'"
+                echo "Error: No Node Name. Use '${TOOL_LOWER} --node [node name] --get | --set [value]'"
                 exit 1
             fi
             ;;                      
@@ -216,8 +268,43 @@ while [[ $# -gt 0 ]]; do
             fi
             exit 0
             ;;
+
+        autostart)
+            if [ -n "$2" ]; then
+                case "$2" in
+                    --enable|-e)
+                        AUTOSTART=true
+                        shift 2
+                        ;;
+                    --disable|-d)
+                        AUTOSTART=false
+                        shift 2
+                        ;;
+                    --query|-q)
+                        query_autostart
+                        shift 2
+                        exit
+                        ;;
+                    --start)
+                        AUTOSTART_RUN=true
+                        shift 2
+                        ;;
+                    *)
+                        echo "Error: Unknown autostart option $1 - Use ${TOOL_LOWER} -h or --help for commands" >&2
+                        shift
+                        exit 1
+
+                        ;;
+                esac
+            else 
+                query_autostart
+                shift
+                exit
+
+            fi
+            ;;
         *)
-            echo "Error: Unknown option $1 - Use aegir -h or --help for commands" >&2
+            echo "Error: Unknown option $1 - Use ${TOOL_LOWER} -h or --help for commands" >&2
             exit 1
             ;;
     esac
@@ -229,37 +316,77 @@ if [ -n "$NODE" ]; then
 fi
 
 
-source activate base
-conda activate aegir
-
-
 
 if [ -n "$RUN_FOCUS" ]; then
     echo "Running focus test..."
     if [ -n "$RUN_EXEC" ]; then
-        $SCRIPT_DIR/python_scripts/dist/aegir --focus
+        $SCRIPT_DIR/python_scripts/dist/${TOOL_LOWER} --focus
     else
-        python "$SCRIPT_DIR/python_scripts/aegir.py" --focus
+        "$PYTHON_EXECUTABLE" "$SCRIPT_DIR/python_scripts/${TOOL_LOWER}.py" --focus
     fi
 
     exit 0
 fi
 
+#Enable or disable autostart
+# If enabling, check routine file/name is specified and warn+exit if not
+# Enabling autostart creates '.autostart' file in script dir with name of routine to run
+if [ -n "$AUTOSTART" ]; then
+    if [ "$AUTOSTART" = true ]; then
+        if [ -z "$ROUTINE_FILE" ]; then
+            echo "Error: Required argument -r/--routine is missing. Use ${TOOL_LOWER} --help for help." >&2
+            exit 1
+        fi
+
+        echo "$ROUTINE_FILE" > "$AUTOSTART_FILE"
+
+        echo "Enabling Autostart with params:"
+        echo "Routine: $ROUTINE_FILE"
+        if [ -n "$SESSION_NAME" ]; then
+            echo "$SESSION_NAME" >> "$AUTOSTART_FILE"
+            echo "Session Name: $SESSION_NAME"
+        fi
+    else
+        echo "Disabling Autostart"
+        rm -f "$AUTOSTART_FILE"
+    fi
+
+    exit 0
+fi
+
+
+if [[ -n "$AUTOSTART_RUN" && -e "$AUTOSTART_FILE" ]]; then
+
+    echo "Running autostart routine from file: $AUTOSTART_FILE"
+    echo "Waiting 10 seconds before starting."
+    echo "If a terminal session starts, the routine will not automatically start."
+    sleep 10
+
+    if systemctl is-active --quiet "serialTerm@${TOOL_LOWER}.service"; then
+        echo "Serial terminal service is running. Automatic routine start will not occur."
+        exit 0
+    fi
+    ROUTINE_FILE=$(sed -n '1{p;q}' "$AUTOSTART_FILE")
+    SESSION_NAME=$(sed -n '2{p;q}' "$AUTOSTART_FILE")
+
+    
+    echo "No terminal session detected, starting routine: $ROUTINE_FILE"
+
+
+fi
+    
+
 if [ -z "$ROUTINE_FILE" ]; then
-    echo "Error: Required argument -r/--routine is missing. Use aegir --help for help." >&2
+    echo "Error: Required argument -r/--routine is missing. Use ${TOOL_LOWER} --help for help." >&2
     exit 1
 fi
 
-if [ -z "$SESSION_NAME" ]; then
-    echo "Error: Required argument -s/--session is missing. Use aegir --help for help." >&2
-    exit 1
-fi
 
 USB_BUFFER_SIZE="$(cat "$USB_MEMORY_FILE")"
 
 if [ "$USB_BUFFER_SIZE" -lt 1000 ]; then
         echo "Warning: USB buffer size is less than 1000mb. This is likely to cause errors during camera use."
-        echo "Please run 'aegir -b' as root to increase the buffer size."
+        echo "Please run '${TOOL_LOWER} -b' as root to increase the buffer size."
 fi
 
 
@@ -272,7 +399,7 @@ if [ -p "$PIPE_OUT_FILE" ]; then
     else
         echo -e "\rAegir process already running:         "
         echo "$AEGIR_STATUS"
-        echo "Use 'aegir -x' to stop a currently running process"
+        echo "Use '${TOOL_LOWER} -x' to stop a currently running process"
         echo "Exiting..."
         exit 1
     fi
@@ -288,16 +415,18 @@ fi
 #export GENICAM_GENTL32_PATH="/opt/ids-peak-with-ueyetl_2.7.1.0-16417_arm64/lib/ids/cti"  &> /dev/null
 
 
-
-PYTHON_SCRIPT="$SCRIPT_DIR/python_scripts/auto_capture.py"
+PYTHON_SCRIPT="$SCRIPT_DIR/python_scripts/${TOOL_LOWER}.py"
 
 # Launch Python script with named arguments
 
-if [ -n "$RUN_EXEC" ]; then
-    echo "Running the executable..."
-    $SCRIPT_DIR/python_scripts/dist/auto_capture --routine "$ROUTINE_FILE" --session "$SESSION_NAME"  >/dev/null &
+
+# if [ -n "$RUN_EXEC" ]; then
+#     echo "Running the executable..."
+#     $SCRIPT_DIR/python_scripts/dist/auto_capture --routine "$ROUTINE_FILE" --session "$SESSION_NAME" "$AUTOSTART_ARG"  >/dev/null &
+if [ -n "$AUTOSTART_RUN" ]; then
+    "$PYTHON_EXECUTABLE" "$PYTHON_SCRIPT" --routine "$ROUTINE_FILE" --session "$SESSION_NAME" --autostart >/dev/null &
 else
-    python "$PYTHON_SCRIPT" --routine "$ROUTINE_FILE" --session "$SESSION_NAME"  >/dev/null &
+    "$PYTHON_EXECUTABLE" "$PYTHON_SCRIPT" --routine "$ROUTINE_FILE" --session "$SESSION_NAME" >/dev/null &
 fi
 
 

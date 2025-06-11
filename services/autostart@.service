@@ -1,0 +1,15 @@
+[Unit]
+Description=%i Autostart Service
+ConditionFileNotEmpty=/etc/%i/.autostart
+After=dev-DH4.device
+
+
+[Service]
+Type=forking
+ExecStart=/usr/local/%i autostart --start
+ExecStop=/usr/local/%i -x
+
+[Install]
+WantedBy=dev-DH4.device
+
+

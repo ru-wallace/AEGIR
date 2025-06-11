@@ -4,11 +4,11 @@ import numpy as np
 from datetime import datetime, timedelta
 import traceback
 from cam_image import Cam_Image
-from time import sleep
+from time import sleep, time
 import math
 import sys
 import threading
-
+import logging
 
 PRODUCER_PATH = f"{os.environ.get('IDS_PEAK_DIR')}/lib/ids/cti/ids_u3vgentl.cti"
 
@@ -63,10 +63,17 @@ NS = "nanoseconds"
 NANOSECONDS = "nanoseconds"
 """ Nanoseconds """
 
+
+logger = logging.getLogger()
+
 def open():
     try:
-        return Camera()
+        camera = Camera()
+        logger.info(f"Connected to camera")
+        return camera
     except Exception as e:
+        logger.error("Could not connect to camera")
+        logger.exception(e, stack_info=True)
         return None
         
 
@@ -160,20 +167,44 @@ class Camera:
             
             buffer:Buffer = None
             
+            for i in range(self.data_stream.num_announced -1):
+                buffer:Buffer = self.device.fetch()
+                buffer.queue()
+                buffer = None
+
             correct_integration_attempts = 0
+            incorrect_integration_attempts = 0
+            max_attempt_seconds = 20
+            max_integration_attempts = 5
+            capture_attempt_start = time()
+
+            
+
+
             fetch_attempts = 0
             integration_time_us = None
             while buffer is None:
                 
                 try:
                     buffer:Buffer = self.device.fetch()
-                    #buffer.update_chunk_data()
+                    buffer.update_chunk_data()
                     integration_time_us = self.nodemap.ChunkExposureTime.value
                     
                     if target_integration_time_us is not None:
                         if abs(integration_time_us - target_integration_time_us) > target_integration_time_us/10:
+                            incorrect_integration_attempts += 1
+                            logger.warning("Buffer exposure time does not match target")
+                            logger.warning(f"Buffer time: {integration_time_us/1e6}")
+                            logger.warning(f"Target Time: {target_integration_time_us/1e6}")
+                            if incorrect_integration_attempts >= max_integration_attempts and time() - capture_attempt_start >= max_attempt_seconds:
+                                exc = Exception("Too many attempts and taken too long to load buffer with correct integration time")
+                                logger.error("Too many attempts and taken too long to load buffer with correct integration time")
+                                raise exc
+                            logger.info(f"Requeueing buffer. Remaining attempts: {5-incorrect_integration_attempts}. Remaining time: {max_attempt_seconds - (time() - capture_attempt_start)}s")
+
                             buffer.queue()
                             buffer = None
+
                     else:
                         if correct_integration_attempts == self.data_stream.num_announced:
                             break
@@ -182,9 +213,12 @@ class Camera:
                         correct_integration_attempts += 1
             
                 except Exception as e:
-                    traceback.print_exception(e, file=sys.stderr)
+                    logger.error("Error fetching buffer")
+                    logger.exception(e)
+                    # traceback.print_exception(e, file=sys.stderr)
                     fetch_attempts +=1
                     if fetch_attempts > 10:
+                        logger.error("Failed to fetch buffer after 10 attempts")
                         raise Exception("Failed to fetch buffer after 10 attempts")
 
             clock_timestamp = buffer.timestamp_ns/(10**9)
@@ -214,7 +248,10 @@ class Camera:
                              aperture=1,
                              cam_temp=temperature)
         except Exception as e:
-            traceback.print_exception(e)
+            logger.error("Error capturing image")
+            logger.exception(e, stack_info=True)
+
+            traceback.print_exception(e, file=sys.stderr)
             return None    
     
     
@@ -336,10 +373,17 @@ class Camera:
     
     def integration_time(self, time:float=None, time_unit:str=MICROSECONDS):
         try:
+
+
             
             if time is None:
-                return convert_time(self._get_integration_time_us(), MICROSECONDS, time_unit)
+                int_time = self._get_integration_time_us()
+                logger.info(f"Retrieved integration time: {convert_time(int_time, MICROSECONDS, SECONDS)} s")
+                return convert_time(int_time, MICROSECONDS, time_unit)
             
+            time_s = convert_time(time, time_unit, SECONDS)
+            logger.info(f"Setting integration time. Time: {time_s}s")
+
             if time < 0:
                 raise ValueError("Integration time must be positive")
             
@@ -356,24 +400,31 @@ class Camera:
             sensor_mode = self.nodemap.SensorOperationMode.value
             
             if time_us < min_time:
+                logger.error(f"Time is less than min time of {min_time/1e6} s")
                 if sensor_mode == LONG_EXPOSURE:
-                    self.stop_acquisition()
+                    logger.info(f"Changing Sensor Mode from LONG_EXPOSURE to DEFAULT")                    
                     self.change_sensor_mode(DEFAULT)
             
             if time_us > max_time:
+                logger.error(f"Time is greater than max time of {max_time/1e6} s")
                 if sensor_mode == DEFAULT:
-                    self.stop_acquisition()
+
+
                     self.change_sensor_mode(LONG_EXPOSURE)
             
             min_time, max_time = self._get_integration_min_max(time_unit=MICROSECONDS)   
             
             time_us = max(min_time, min(max_time, time_us))
+
+
             
             self.nodemap.ExposureTime.set_value(time_us)
             
+            logger.info(f"Integration time set to {time_us/1e6} s")
 
-            if acquisition_state:
-                self.device.start()
+            # if acquisition_state:
+            #     logger.info(f"Restarting Acquisition")
+            #     self.device.start()
 
             return convert_time(self.nodemap.ExposureTime.value, MICROSECONDS, time_unit)
         except Exception as e:
@@ -382,19 +433,31 @@ class Camera:
             return None
         
     def change_sensor_mode(self, mode:str=DEFAULT):
-        if self.nodemap.UserSetSelector.value == mode:
+        logger.info(f"Changing sensor mode to {mode}")
+
+        if mode not in [DEFAULT, LONG_EXPOSURE, "UserSet0", "UserSet1"]:
+            logger.error(f"Mode {mode} is invalid")
+            raise ValueError("Invalid Sensor Mode")
+
+        current_mode = self.nodemap.UserSetSelector.value
+        if current_mode == mode:
+            logger.info(f"Already in {mode}")
             return
         
+        logger.info(f"Current mode: {current_mode}")
+
         acquisition_state = self.device.is_acquiring()
         acquisition_mode = self.nodemap.AcquisitionMode.value
         current_pixel_format = self.nodemap.PixelFormat.value
         current_gain = self.nodemap.Gain.value
         current_buffer_handling_mode = self.ds_nodemap.StreamBufferHandlingMode.value
-        
+
+        if acquisition_state:
+            logger.info("Stopping acquisition")
+
         self.stop_acquisition()
             
-        if mode not in [DEFAULT, LONG_EXPOSURE, "UserSet0", "UserSet1"]:
-            raise ValueError("Invalid Sensor Mode")
+
         self.nodemap.UserSetSelector.set_value(mode)
         self.nodemap.UserSetLoad.execute()
         
@@ -404,7 +467,10 @@ class Camera:
         self.nodemap.AcquisitionMode.set_value(acquisition_mode)
         
         if acquisition_state:
+            logger.info("Resuming acquisition")
             self.start_acquisition()
+
+        logger.info(f"Mode changed to {self.nodemap.AcquisitionMode.value}")
     
     def _get_gain_min_max(self):
         return self.nodemap.Gain.min, self.nodemap.Gain.max
@@ -568,7 +634,7 @@ def calculate_new_integration_time(current_integration_time, saturation_fraction
     #The adjustment scales with the ralationship between the size of the saturation error and the target saturation fraction
     #If the difference is large, the adjustment is large, and vice versa. This is fairly quick but could probably be optimised (Maybe with a PID type control?)
 
-    adjustment_factor = min(10, max(0.1, 1 - (overexposed_difference)/target_fraction ))
+    adjustment_factor = min(100, max(0.1, 1 - (overexposed_difference)/target_fraction ))
     
 
     #Calculate the new guess for a good integration time

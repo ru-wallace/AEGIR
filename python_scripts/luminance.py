@@ -104,19 +104,16 @@ def calc_relative_luminance(image : Image.Image | np.ndarray, mask: Image.Image|
             return 255.0
         return np.mean(masked_channel)
     
-    try:
-        if len(lin_array.shape) == 2:
-            lin_array = np.expand_dims(lin_array, axis=2)
-    
-    #masked_array = np.ma.array(image_array, mask=mask_bool)
-    
-        mean_lin = lin_array.mean(axis=(0,1)) 
-       # mean_lin = np.array([get_mean(channel, saturation_threshold) for channel in lin_array.transpose(2,0,1)]) #Get mean for each linearised channel
 
-    except Exception as e:
-        print("Error calculating mean linear values:", file=sys.stderr)
-        print(f"Lin_array shape: {lin_array.shape}", file=sys.stderr)
-        traceback.print_exception(e)
+    if len(lin_array.shape) == 2:
+        lin_array = np.expand_dims(lin_array, axis=2)
+
+    #masked_array = np.ma.array(image_array, mask=mask_bool)
+
+    mean_lin = lin_array.mean(axis=(0,1)) 
+    # mean_lin = np.array([get_mean(channel, saturation_threshold) for channel in lin_array.transpose(2,0,1)]) #Get mean for each linearised channel
+
+
     xyz = lin_sRGB_to_XYZ(mean_lin)
     relative_luminance = xyz[1]
 

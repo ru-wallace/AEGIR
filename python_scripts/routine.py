@@ -1,12 +1,12 @@
+#TODO: Add field for limit for number of auto-adjust attempts
 
 import time
 from datetime import datetime, timedelta
-import traceback
 from pathlib import Path
 import numpy as np
 import threading
-import sys
 import queue
+import logging
 
 CAPTURE_START = "capture_start"
 CAPTURE_END="capture_end"
@@ -16,23 +16,29 @@ ACCEPTED_PARAMS={"name":str, "initial_delay_time_secs":(float,int), "number_limi
                  "loop_integration_time":bool, "gain":(float,int), "loop_gain":bool,
                  "min_tick_length_secs":(float,int), "all_combinations":bool}
 
+
+logger = logging.getLogger()
+
+
 class Routine:
     
-    def placeholder_capture(integration_time, gain, auto):
+    def placeholder_capture(integration_time, gain, auto, capture_n=None):
         int_string = f"{round(integration_time, 6)}s"
         if integration_time == 0 or auto:
             int_string = "Auto-adjust"
         
         
-        print(f"Exposure time: {int_string} | gain: {gain}")
+        logger.info(f"Routine Module Placeholder capture function called")
+        logger.info(f"\t{capture_n}: Exposure time: {int_string} | gain: {gain}")   
         time.sleep(integration_time)
-        print("Capture Complete")
+        logger.info(f"\tPlaceholder capture function complete")
+    
         return None
 
     def __init__(self, name,
                  initial_delay_time_secs:float=0, 
-                 number_limit:int|float=5000,
-                 time_limit_secs:float=345600,
+                 number_limit:int|float=10000,
+                 time_limit_secs:float=255*60*60,
                  repeat:int|float = 1,
                  repeat_interval_time_secs:float=0,
                  interval_mode:str=CAPTURE_END, 
@@ -50,9 +56,9 @@ class Routine:
         self.name:str = name
         
         self.initial_delay:float=initial_delay_time_secs
-        self.number_limit:int = min(int(number_limit), 5000) #max images is 5000
+        self.number_limit:int = min(int(number_limit), 10000) #max images is 10000
         
-        self.time_limit_secs:float = min(time_limit_secs, 345600) #maximum time is 96 hours 
+        self.time_limit_secs:float = min(time_limit_secs, 255*60*60) #maximum time is 255 hours 
         self.repeat:int = int(repeat)
         self.repeat_interval_time_secs:float = repeat_interval_time_secs
         
@@ -87,7 +93,7 @@ class Routine:
 
                 
         if interval_mode.lower() not in [CAPTURE_START, CAPTURE_END]:
-            print("Interval mode not recognised, setting to default: CAPTURE_START ")
+            logger.warning("Interval mode not recognised, setting to default: CAPTURE_START ")
             interval_mode = CAPTURE_START
         self.interval_mode=interval_mode
         
@@ -103,12 +109,13 @@ class Routine:
         #Variables for running
         self.capture_function = capture_function
         self.start_time = None
+        self.run_time = 0
         self.next_capture = None
         self.image_count = 0
-        self.complete = False
+        self.complete = threading.Event()
         self.last_time_printed=0
-        self.capturing_images=False
-        self.stop_signal = False
+        self.capturing_images=threading.Event()
+        self.stop_signal = threading.Event()
         self.stop_reason = None
         self.capture_queue :queue.Queue = queue.Queue()
         self.capture_start_time = None
@@ -131,44 +138,59 @@ class Routine:
         string += f"\nTick length: {self.tick_length}"
         return string
     
+    def log_routine_info(self):
+        for line in str(self).splitlines():
+            logger.info(line)
+
+
+    
     def start_capture_thread(self):
-        self.capturing = True
         capture_thread = threading.Thread(target=self.process_capture_queue)
         capture_thread.daemon=True
         capture_thread.start()
+        logger.info("Started capture thread")
       
     def end_capture_thread(self):
-        if not self.capturing_images:
+        logger.info("Stopping capture thread")
+        if not self.capturing_images.is_set():
+            logger.info("Capture thread already stopped")
             return      
         self.capture_queue.put(None)
-        self.capture_queue.join()
+        logger.info("Added sentinel value to capture queue.")
+        self.capturing_images.wait()
+        logger.info("Capture thread completed")
         
     def process_capture_queue(self):
         try:
-            self.capturing_images = True
+            self.capturing_images.set()
             while True:
-                self.processing = True
-                if self.complete or self.stop_signal:
+                if self.stop_signal.is_set():
+                    logger.info("Capture Queue: Stop signal received.")
+                if self.complete.is_set():
+                    logger.info("Capture Queue: Complete before next item retrieved.")
                     break
                 image_params = self.capture_queue.get()
                 try:
                     if image_params is None:
-                        self.complete = True
+                        logger.info("Capture Queue: Sentinel value received.")
+                        self.complete.set()
                         break
                     integration_time = image_params["integration_time"]
                     gain=image_params["gain"]
                     self.capture_image(integration_time=integration_time, gain=gain)
                     
                 except Exception as e:
-                    traceback.print_exception(e, file=sys.stderr)
+                    logger.exception("Error processing capture queue item")
+                    #traceback.print_exception(e, file=sys.stderr)
                 finally:
                     self.capture_queue.task_done()
         except Exception as e:
-            print("Error processing capture queue: ", file=sys.stderr)
-            traceback.print_exception(e, file=sys.stderr)
+            logger.exception("Error processing capture queue")
+
         finally:                
-            self.capturing_images = False
-            self.complete = True
+            self.capturing_images.clear()
+            self.complete.set()
+            logger.info("Capture Queue: Finished processing capture queue.")
             return
 
     def capture_image(self, integration_time, gain):
@@ -183,109 +205,118 @@ class Routine:
                 auto = True
                 int_string = "Auto"
             
-            print(f"{round(time.time()-self.start_time, 2)}s ==> Capturing Img #{self.image_count} ~ I:{int_string} | G: {gain}dB")
+            logger.info(f"Routine Module: {round(time.time()-self.start_time, 2)}s ==> Capturing Img #{self.image_count} ~ I:{int_string} | G: {gain}dB")
 
                     
-            self.capture_function(integration_time_secs=integration_time, gain=gain, auto=auto)
+            self.capture_function(integration_time_secs=integration_time, gain=gain, auto=auto, capture_n = self.image_count+1)
             self.image_count += 1
             if self.interval_mode == CAPTURE_END: 
                 self.set_next_capture_time()
         except Exception as e:
-            print(f"Error capturing image {self.image_count}", file=sys.stderr)
-            print(traceback.format_exception(e), file=sys.stderr)
-            traceback.print_exception(e)
+            logger.error(f"Error capturing image {self.image_count}")
+            logger.exception(e)
 
-        
-    
     def set_next_capture_time(self):
 
-        if self.interval_mode == CAPTURE_END:
-            self.next_capture = time.time()+self.interval_secs
-        else:
-            self.next_capture = self.capture_start_time + self.interval_secs
-        if self.image_count % self.iteration_length == 0:
-            self.next_capture = self.capture_start_time + self.repeat_interval_time_secs
+        #if self.interval_mode == CAPTURE_END:
+
+        self.next_capture = time.time()+self.interval_secs
+        #else:
+        #    self.next_capture = self.capture_start_time + self.interval_secs
+        image_count = self.image_count if self.interval_mode == CAPTURE_END else self.image_count + 1
+        if image_count % self.iteration_length == 0:
+            self.next_capture = time.time() + self.repeat_interval_time_secs
+        logger.info(f"Set next capture time to: {datetime.fromtimestamp(self.next_capture).strftime('%Y-%m-%d %H:%M:%S')}")
         
     def tick(self):
         self.now = time.time()
         if self.start_time is None:
-                self.capturing = True
+                logger.info(f"Starting routine {self.name}")
                 self.start_capture_thread()
                 self.start_time = time.time()
-                print("Starting routine ", self.name)
+
                 self.next_capture =  self.start_time + self.initial_delay
         try:
             
             self.run_time = self.now-self.start_time
             
             def tick_done(complete:bool=False, stop_reason:str=None):
-                self.complete = complete
+                if complete:
+                    self.complete.set()
                 tick_remaining = self.tick_length-(time.time()-self.now)
-                if self.stop_signal or self.complete:
-                    self.capture_queue.put(None)
-                if (complete or self.stop_signal) and stop_reason is not None and self.stop_reason is None:
+
+                if (complete or self.stop_signal.is_set()) and stop_reason is not None and self.stop_reason is None:
                     self.stop_reason = stop_reason
+                
+                if self.stop_signal.is_set() or self.complete.is_set():
+                    self.capture_queue.put(None)
+
+                if complete:
+                    logger.info(f"Tick Done: Stop Signal:{self.stop_signal.is_set()} Complete:{self.complete.is_set()}")
+                    logger.info(f"Stop Reason: {self.stop_reason}")
+                    
                 
                 if tick_remaining > 0:
                     time.sleep(tick_remaining)
-                return self.complete
+                return self.complete.is_set()
             
-            if self.complete:
+            if self.complete.is_set():
                  tick_done(True, "Complete at start of tick - maybe externally changed")
-                 return self.complete
-            if self.stop_signal:
-                if not self.capturing_images:
-                    self.complete = True
-                tick_done(self.complete, "Recieved Stop Signal")
-                return self.complete
+                 return self.complete.is_set()
+            if self.stop_signal.is_set():
+                if not self.capturing_images.is_set():
+                    self.complete.set()
+                tick_done(self.complete.is_set(), "Received Stop Signal")
+                return self.complete.is_set()
                 
             
 
             if self.number_limit is not None:
                 if self.image_count >= self.number_limit:
-                    if self.capturing_images:
-                        self.stop_signal = True
+                    if self.capturing_images.is_set():
+                        self.stop_signal.set()
                     else:
-                        self.complete = True
-                    tick_done(self.complete, f"Reached Number Limit of {self.number_limit} (Image count: {self.image_count}, Number of integration_times: {self.int_times_seconds.size}) (First trap)")
-                    return self.complete
+                        self.complete.set()
+                    tick_done(self.complete.is_set(), f"Reached Number Limit of {self.number_limit} (Image count: {self.image_count}, Number of integration_times: {self.int_times_seconds.size}) (First trap)")
+                    return self.complete.is_set()
             
             
             if self.time_limit_secs is not None:
                 if self.run_time >= self.time_limit_secs:
-                    self.stop_signal = True
-                    tick_done(self.complete, "Time Limit Reached")
-                    return self.complete
+                    self.stop_signal.set()
+                    tick_done(self.complete.is_set(), "Time Limit Reached")
+                    return self.complete.is_set()
             
             
             if self.image_count >= self.int_times_seconds.size:
-                if not self.capturing_images:
-                    self.complete = True
+                if not self.capturing_images.is_set():
+                    self.complete.set()
                 else:
-                    self.stop_signal = True
-                tick_done(self.complete, f"Reached end of routine ({self.image_count}/{self.int_times_seconds.size} images)")
-                return self.complete
+                    self.stop_signal.set()
+                tick_done(self.complete.is_set(), f"Reached end of routine ({self.image_count}/{self.int_times_seconds.size} images)")
+                return self.complete.is_set()
             
-            if self.now > self.next_capture and not self.stop_signal:
+            if self.now > self.next_capture and not self.stop_signal.is_set():
                 self.next_capture = self.next_capture + 10000000
                 next_param_set = self.params_queue.get(block=False)
-                print(f"{datetime.now().strftime('%Y-%d-%m %H:%M:%S.%f')[:-3]} Params: \n{next_param_set}", file=sys.stderr)
-                self.capture_queue.put(next_param_set)
                 if next_param_set is None:
-                    self.complete = True
-                    tick_done(self.complete, f"Reached end of routine ({self.image_count}/{self.int_times_seconds.size} images)")
-                    
+                    self.complete.set()
+                    tick_done(self.complete.is_set(), f"Reached end of routine ({self.image_count}/{self.int_times_seconds.size} images)")
+                else:
+                    self.capture_queue.put(next_param_set)
                 self.params_queue.task_done()
-                return self.complete
+                return self.complete.is_set()
             
 
                 
-            tick_done(self.complete, "End of Tick")
+            tick_done(self.complete.is_set(), "End of Tick")
 
         except Exception as e:
-            traceback.print_exception(e)
-            tick_done(self.complete, "Error")
-        return self.complete
+            #traceback.print_exception(e)
+            logger.error("Tick Error")
+            logger.exception(e)
+            tick_done(self.complete.is_set(), "Error")
+        return self.complete.is_set()
     
 
     
@@ -401,8 +432,8 @@ def parse_line(line:str) -> dict:
             value = parse_value(value)
             return (parameter, value)
         except Exception as e:
-            print(f"Error processing Line: {line}")
-            traceback.print_exception(e)
+            logger.exception(f"Error processing Line: {line}")
+
 
             return None
         
@@ -455,7 +486,6 @@ def from_dict(params:dict, capture_function:callable=Routine.placeholder_capture
                 #Create short string representing value to print if value is longer than 10 chars
                 val_string =  (str(value[:7]) + '...') if len(str[value]) > 10 else str[value]
                 valid_params[key] = value
-                print(val_string)
             else:
                 valid_params.update([(key, value)])
             continue

@@ -1,0 +1,15 @@
+[Unit]
+Description=Call depthLogger
+After=dev-DH4.device
+
+[Service]
+ExecStartPre=echo %i
+ExecStart=/bin/bash /usr/local/bin/%iLog
+Restart=always
+#RestartSec=1
+
+[Install]
+WantedBy=dev-DH4.device
+
+
+

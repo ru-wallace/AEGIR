@@ -8,6 +8,7 @@ import traceback
 import threading, queue
 import logging
 from datetime import datetime
+import yam
 
 
 logger = logging.getLogger()
@@ -48,6 +49,7 @@ class Session:
             self.image_directory = self.directory / "images"
             self.csv_file_path = self.directory / "data.csv"
             self.json_file_path = self.directory / "session.json"
+            self.info_file = self.directory / "info.yml"
             self.output_file_path = self.directory / "output.log"
             self.session_list_file = self.parent_directory / "session_list.json"
             
@@ -86,14 +88,19 @@ class Session:
             logger.critical("Error initiating session", exc_info=True)
             # traceback.print_exception(e, file=sys.stderr)
             raise e
+        
+    def save(self):
+        logger.info(f"Saving session {self.name} to {self.info_file}")
+        yam.dump_file(self.details, self.info_file)
     
     @property
     def details(self) -> dict:
-        return {"name" : self.name,
-                    "start_time" : self.start_time.strftime(PRETTY_FORMAT),
+        return {
+                    "name" : self.name,
+                    "date" : self.start_time.strftime(PRETTY_FORMAT),
                     "last_updated": self.last_updated.strftime(PRETTY_FORMAT),
                     "path" : str(self.directory),
-                    "image_count" : self.image_count
+                    "n_measurements" : self.image_count
                     }
     
     
@@ -114,6 +121,7 @@ class Session:
     def add_image(self, image:cam_image.Cam_Image)-> cam_image.Cam_Image:
         image.set_number(self.image_count)
         self.images.append(image.info)
+        self.save()
         return image
     
     @property
@@ -138,9 +146,12 @@ class Session:
         process_thread = threading.Thread(target=self.process_image_queue)
         process_thread.daemon = True
         self.queue_shutdown.clear()
+        self.save()
         self.processing_queue.set()
+
         self.finished_processing.clear()
         process_thread.start()
+        
         
     def stop_processing_queue(self):
         self.add_image_to_queue(None)

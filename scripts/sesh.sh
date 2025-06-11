@@ -125,7 +125,7 @@ process_session() {
         local session_date=""
         local session_n_measurements=""
         while IFS= read -r line; do
-            if [[ "$line" == "name:"* ]]; then
+            if [[ "$line" == "name"* ]]; then
                 session_name=$(echo "$line" | awk '{print $2}')            
             elif [[ "$line" == "date:"* ]]; then
                 session_date=$(echo "$line" | awk '{print $2, $3}') # Assuming date is in the format "YYYY-MM-DD HH:MM:SS"

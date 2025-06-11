@@ -2,7 +2,9 @@
 
 # Find the script directory
 # SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+TOOL_NAME="AEGIR"
 
+TOOL_LOWER="$(echo "$TOOL_NAME" | tr '[:upper:]' '[:lower:]')"
 
 CONFIG_FILE="/etc/${TOOL_LOWER}/${TOOL_LOWER}.conf"
 
@@ -415,7 +417,7 @@ fi
 #export GENICAM_GENTL32_PATH="/opt/ids-peak-with-ueyetl_2.7.1.0-16417_arm64/lib/ids/cti"  &> /dev/null
 
 
-PYTHON_SCRIPT="$SCRIPT_DIR/python_scripts/${TOOL_LOWER}.py"
+PYTHON_SCRIPT="$BASE_DIR/python_scripts/${TOOL_LOWER}.py"
 
 # Launch Python script with named arguments
 

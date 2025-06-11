@@ -28,22 +28,13 @@ MINIFORGE_DIR="${USER_HOME}/miniforge3"
 ENV_DIR="$MINIFORGE_DIR/envs/${CONDA_ENV_NAME}"
 
 
-# Check if conda environment exists
-if ! conda env list | grep -q -w "$CONDA_ENV_NAME"; then
-    echo "Conda environment '$CONDA_ENV_NAME' does not exist."
-    read -e -p "Create conda environment '$CONDA_ENV_NAME'? [Y/n]" CREATE_CONDA_ENV
-    if [ "$CREATE_CONDA_ENV" == "" ]; then
-        CREATE_CONDA_ENV="y"
-    fi
-    if [ "$CREATE_CONDA_ENV" == "y" ]; then
-        echo "Creating conda environment '$CONDA_ENV_NAME'..."
-        conda env create -f environment.yml
-    else
-        echo "Skipping conda environment creation. Aegir may not work properly without the conda environment."
-    fi
-    
+if [ -d "$ENV_DIR" ]; then
+    PYTHON_EXE="$ENV_DIR/bin/python"
+else
+    read -e -p "Enter Directory containing Python Executable\n (i.e /home/[username]/miniforge3/envs/[virtual env name]/bin:\n" PYTHON_EXE
+    PYTHON_EXE="$PYTHON_EXE/python"
 fi
-
+    
 
 # Get script directory
 BASE_DIR="$(dirname "$(readlink -f "$0")")"

@@ -1,0 +1,637 @@
+2025-06-11 11:34:53.783 -            aegir -     INFO - Routine Name: short_test
+2025-06-11 11:34:53.784 -            aegir -     INFO - Session Name not set. Using starting timestamp.
+2025-06-11 11:34:54.485 - device_interface -     INFO - Connected to camera
+2025-06-11 11:34:54.589 -            aegir -     INFO - Session None not found
+2025-06-11 11:34:54.590 -            aegir -     INFO - Creating new session...
+2025-06-11 11:34:54.595 -            aegir -     INFO - New Session Created in /home/ru-admin/AEGIR_DATA/sessions
+2025-06-11 11:34:54.595 -            aegir -     INFO - Running routine short_test...
+2025-06-11 11:34:54.601 -            aegir -     INFO - Routine: short_test
+Initial delay: 0.0s
+Number Limit: 30
+Time Limit: 0:00:30
+Interval: 1.0s
+Interval Mode: capture_end
+Iteration Length: 10
+Repeat: 4
+Repeat Interval: 0s
+Integration_times (s): [0.001 0.005 0.01  0.05  0.1   0.5   1.   ...]
+Gain settings: [1. 1. 1. 1. 1. 1. 1....]
+Planned Image total: 30
+Time Estimate: 2025-06-11 11:35:24 (0:00:30)
+Tick length: 0.001
+2025-06-11 11:34:54.608 - device_interface -     INFO - Changing sensor mode to Default
+2025-06-11 11:34:54.609 - device_interface -     INFO - Already in Default
+2025-06-11 11:34:54.610 - device_interface -     INFO - Setting integration time. Time: 0.001s
+2025-06-11 11:34:54.623 - device_interface -     INFO - Integration time set to 0.001 s
+2025-06-11 11:34:55.321 -          session -     INFO - Starting processing queue
+2025-06-11 11:34:55.323 -          routine -     INFO - Starting routine short_test
+2025-06-11 11:34:55.324 -          routine -     INFO - Started capture thread
+2025-06-11 11:34:55.325 -          routine -     INFO - Routine Module: 0.0s ==> Capturing Img #0 ~ I:0.001s | G: 1.0dB
+2025-06-11 11:34:55.331 -            aegir -     INFO - Capturing Image 0 (#0 of routine)
+2025-06-11 11:34:55.332 -            aegir -     INFO - 	Auto integration time mode: False
+2025-06-11 11:34:55.332 -            aegir -     INFO - 	Integration Time:  0.00100s
+2025-06-11 11:34:55.332 -            aegir -     INFO - 	Gain: 1.0
+2025-06-11 11:34:55.338 - device_interface -     INFO - Setting integration time. Time: 0.001s
+2025-06-11 11:34:55.347 - device_interface -     INFO - Integration time set to 0.001 s
+2025-06-11 11:34:55.351 -            aegir -     INFO - 	Set integration time to 0.0009975135135135136
+2025-06-11 11:34:55.351 -            aegir -     INFO - Initiating capture
+2025-06-11 11:34:55.451 -            aegir -     INFO - 	Capture Complete
+2025-06-11 11:34:55.594 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 117, in get_depth
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 117, in get_depth
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:34:55.602 -            aegir -    ERROR - Pressure Sensor Not Responding - setting depth to 0.0
+2025-06-11 11:34:55.746 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 132, in get_pressure
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 132, in get_pressure
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:34:55.748 -            aegir -    ERROR - Pressure Sensor Not Responding - setting pressure to 0.0
+2025-06-11 11:34:55.891 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 148, in get_temp
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 148, in get_temp
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:34:55.893 -            aegir -    ERROR - Pressure Sensor Not Responding - setting temp to 0.0
+2025-06-11 11:34:55.893 -          session -     INFO - Adding image to queue
+2025-06-11 11:34:55.893 -          session -     INFO - Processing queue length: 1
+2025-06-11 11:34:55.894 -            aegir -     INFO - 	Added to Queue - Queue size: 0
+2025-06-11 11:34:55.896 -            aegir -     INFO - Captured Image #0
+2025-06-11 11:34:55.897 -            aegir -     INFO - Timestamp: 2025-06-11 11:34:55
+2025-06-11 11:34:55.898 -            aegir -     INFO - Integration Time: 0.0009975135135135136s 
+2025-06-11 11:34:55.899 -          routine -     INFO - Set next capture time to: 2025-06-11 11:34:56
+2025-06-11 11:34:56.900 -          routine -     INFO - Routine Module: 1.58s ==> Capturing Img #1 ~ I:0.005s | G: 1.0dB
+2025-06-11 11:34:56.904 -            aegir -     INFO - Capturing Image 0 (#1 of routine)
+2025-06-11 11:34:56.906 -            aegir -     INFO - 	Auto integration time mode: False
+2025-06-11 11:34:56.907 -            aegir -     INFO - 	Integration Time:  0.00500s
+2025-06-11 11:34:56.908 -            aegir -     INFO - 	Gain: 1.0
+2025-06-11 11:34:56.913 - device_interface -     INFO - Setting integration time. Time: 0.005s
+2025-06-11 11:34:56.933 - device_interface -     INFO - Integration time set to 0.005 s
+2025-06-11 11:34:56.937 -            aegir -     INFO - 	Set integration time to 0.004997513513513513
+2025-06-11 11:34:56.939 -            aegir -     INFO - Initiating capture
+2025-06-11 11:34:57.072 -            aegir -     INFO - 	Capture Complete
+2025-06-11 11:34:57.449 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 148, in get_temp
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 148, in get_temp
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:34:57.453 -            aegir -    ERROR - Pressure Sensor Not Responding - setting temp to 0.0
+2025-06-11 11:34:57.454 -          session -     INFO - Adding image to queue
+2025-06-11 11:34:57.456 -          session -     INFO - Processing queue length: 1
+2025-06-11 11:34:57.458 -            aegir -     INFO - 	Added to Queue - Queue size: 1
+2025-06-11 11:34:57.460 -            aegir -     INFO - Captured Image #1
+2025-06-11 11:34:57.461 -            aegir -     INFO - Timestamp: 2025-06-11 11:34:57
+2025-06-11 11:34:57.462 -            aegir -     INFO - Integration Time: 0.004997513513513513s 
+2025-06-11 11:34:57.463 -          routine -     INFO - Set next capture time to: 2025-06-11 11:34:58
+2025-06-11 11:34:58.286 -          session -     INFO - Processing image 0 - Queue size 1
+2025-06-11 11:34:58.463 -          routine -     INFO - Routine Module: 3.14s ==> Capturing Img #2 ~ I:0.01s | G: 1.0dB
+2025-06-11 11:34:58.467 -            aegir -     INFO - Capturing Image 2 (#2 of routine)
+2025-06-11 11:34:58.468 -            aegir -     INFO - 	Auto integration time mode: False
+2025-06-11 11:34:58.468 -            aegir -     INFO - 	Integration Time:  0.01000s
+2025-06-11 11:34:58.469 -            aegir -     INFO - 	Gain: 1.0
+2025-06-11 11:34:58.474 - device_interface -     INFO - Setting integration time. Time: 0.01s
+2025-06-11 11:34:58.486 - device_interface -     INFO - Integration time set to 0.01 s
+2025-06-11 11:34:58.490 -            aegir -     INFO - 	Set integration time to 0.009997513513513513
+2025-06-11 11:34:58.490 -            aegir -     INFO - Initiating capture
+2025-06-11 11:34:58.599 -            aegir -     INFO - 	Capture Complete
+2025-06-11 11:34:58.613 -        cam_image -     INFO - Saved image 0 to /home/ru-admin/AEGIR_DATA/sessions/2025_06_11__11_34_54/images/2025_06_11__11_34_54_000.png
+2025-06-11 11:34:58.615 -          session -     INFO - Finished processing image 0 - Queue size 1
+2025-06-11 11:34:58.868 -          session -     INFO - Adding image to queue
+2025-06-11 11:34:58.870 -          session -     INFO - Processing queue length: 1
+2025-06-11 11:34:58.878 -            aegir -     INFO - 	Added to Queue - Queue size: 1
+2025-06-11 11:34:58.878 -            aegir -     INFO - Captured Image #2
+2025-06-11 11:34:58.879 -            aegir -     INFO - Timestamp: 2025-06-11 11:34:58
+2025-06-11 11:34:58.880 -            aegir -     INFO - Integration Time: 0.009997513513513513s 
+2025-06-11 11:34:58.880 -          routine -     INFO - Set next capture time to: 2025-06-11 11:34:59
+2025-06-11 11:34:59.881 -          routine -     INFO - Routine Module: 4.56s ==> Capturing Img #3 ~ I:0.05s | G: 1.0dB
+2025-06-11 11:34:59.889 -            aegir -     INFO - Capturing Image 2 (#3 of routine)
+2025-06-11 11:34:59.890 -            aegir -     INFO - 	Auto integration time mode: False
+2025-06-11 11:34:59.891 -            aegir -     INFO - 	Integration Time:  0.05000s
+2025-06-11 11:34:59.891 -            aegir -     INFO - 	Gain: 1.0
+2025-06-11 11:34:59.899 - device_interface -     INFO - Setting integration time. Time: 0.05s
+2025-06-11 11:34:59.913 - device_interface -     INFO - Integration time set to 0.05 s
+2025-06-11 11:34:59.924 -            aegir -     INFO - 	Set integration time to 0.04999751351351351
+2025-06-11 11:34:59.928 -            aegir -     INFO - Initiating capture
+2025-06-11 11:35:00.048 -            aegir -     INFO - 	Capture Complete
+2025-06-11 11:35:00.192 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 117, in get_depth
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 117, in get_depth
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:35:00.194 -            aegir -    ERROR - Pressure Sensor Not Responding - setting depth to 0.0
+2025-06-11 11:35:00.337 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 132, in get_pressure
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 132, in get_pressure
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:35:00.339 -            aegir -    ERROR - Pressure Sensor Not Responding - setting pressure to 0.0
+2025-06-11 11:35:00.482 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 148, in get_temp
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 148, in get_temp
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:35:00.484 -            aegir -    ERROR - Pressure Sensor Not Responding - setting temp to 0.0
+2025-06-11 11:35:00.485 -          session -     INFO - Adding image to queue
+2025-06-11 11:35:00.485 -          session -     INFO - Processing queue length: 2
+2025-06-11 11:35:00.486 -            aegir -     INFO - 	Added to Queue - Queue size: 2
+2025-06-11 11:35:00.486 -            aegir -     INFO - Captured Image #3
+2025-06-11 11:35:00.487 -            aegir -     INFO - Timestamp: 2025-06-11 11:35:00
+2025-06-11 11:35:00.488 -            aegir -     INFO - Integration Time: 0.04999751351351351s 
+2025-06-11 11:35:00.489 -          routine -     INFO - Set next capture time to: 2025-06-11 11:35:01
+2025-06-11 11:35:00.638 -          session -     INFO - Processing image 1 - Queue size 2
+2025-06-11 11:35:00.943 -        cam_image -     INFO - Saved image 1 to /home/ru-admin/AEGIR_DATA/sessions/2025_06_11__11_34_54/images/2025_06_11__11_34_54_001.png
+2025-06-11 11:35:00.946 -          session -     INFO - Finished processing image 1 - Queue size 2
+2025-06-11 11:35:01.491 -          routine -     INFO - Routine Module: 6.17s ==> Capturing Img #4 ~ I:0.1s | G: 1.0dB
+2025-06-11 11:35:01.509 -            aegir -     INFO - Capturing Image 3 (#4 of routine)
+2025-06-11 11:35:01.515 -            aegir -     INFO - 	Auto integration time mode: False
+2025-06-11 11:35:01.521 -            aegir -     INFO - 	Integration Time:  0.10000s
+2025-06-11 11:35:01.523 -            aegir -     INFO - 	Gain: 1.0
+2025-06-11 11:35:01.533 - device_interface -     INFO - Setting integration time. Time: 0.1s
+2025-06-11 11:35:01.546 - device_interface -     INFO - Integration time set to 0.1 s
+2025-06-11 11:35:01.553 -            aegir -     INFO - 	Set integration time to 0.09999751351351352
+2025-06-11 11:35:01.555 -            aegir -     INFO - Initiating capture
+2025-06-11 11:35:01.702 -            aegir -     INFO - 	Capture Complete
+2025-06-11 11:35:01.980 -          session -     INFO - Adding image to queue
+2025-06-11 11:35:01.980 -          session -     INFO - Processing queue length: 2
+2025-06-11 11:35:01.981 -            aegir -     INFO - 	Added to Queue - Queue size: 2
+2025-06-11 11:35:01.981 -            aegir -     INFO - Captured Image #4
+2025-06-11 11:35:01.982 -            aegir -     INFO - Timestamp: 2025-06-11 11:35:01
+2025-06-11 11:35:01.983 -            aegir -     INFO - Integration Time: 0.09999751351351352s 
+2025-06-11 11:35:01.984 -          routine -     INFO - Set next capture time to: 2025-06-11 11:35:02
+2025-06-11 11:35:02.893 -          session -     INFO - Processing image 2 - Queue size 2
+2025-06-11 11:35:02.985 -          routine -     INFO - Routine Module: 7.66s ==> Capturing Img #5 ~ I:0.5s | G: 1.0dB
+2025-06-11 11:35:02.988 -            aegir -     INFO - Capturing Image 5 (#5 of routine)
+2025-06-11 11:35:02.989 -            aegir -     INFO - 	Auto integration time mode: False
+2025-06-11 11:35:02.989 -            aegir -     INFO - 	Integration Time:  0.50000s
+2025-06-11 11:35:02.990 -            aegir -     INFO - 	Gain: 1.0
+2025-06-11 11:35:02.995 - device_interface -     INFO - Setting integration time. Time: 0.5s
+2025-06-11 11:35:03.005 - device_interface -     INFO - Integration time set to 0.5 s
+2025-06-11 11:35:03.009 -            aegir -     INFO - 	Set integration time to 0.4999975135135135
+2025-06-11 11:35:03.010 -            aegir -     INFO - Initiating capture
+2025-06-11 11:35:03.318 -        cam_image -     INFO - Saved image 2 to /home/ru-admin/AEGIR_DATA/sessions/2025_06_11__11_34_54/images/2025_06_11__11_34_54_002.png
+2025-06-11 11:35:03.376 -          session -     INFO - Finished processing image 2 - Queue size 2
+2025-06-11 11:35:03.593 -            aegir -     INFO - 	Capture Complete
+2025-06-11 11:35:03.736 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 117, in get_depth
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 117, in get_depth
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:35:03.740 -            aegir -    ERROR - Pressure Sensor Not Responding - setting depth to 0.0
+2025-06-11 11:35:03.884 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 132, in get_pressure
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 132, in get_pressure
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:35:03.907 -            aegir -    ERROR - Pressure Sensor Not Responding - setting pressure to 0.0
+2025-06-11 11:35:03.963 -          session -     INFO - Adding image to queue
+2025-06-11 11:35:03.964 -          session -     INFO - Processing queue length: 2
+2025-06-11 11:35:03.965 -            aegir -     INFO - 	Added to Queue - Queue size: 2
+2025-06-11 11:35:03.966 -            aegir -     INFO - Captured Image #5
+2025-06-11 11:35:03.968 -            aegir -     INFO - Timestamp: 2025-06-11 11:35:03
+2025-06-11 11:35:03.972 -            aegir -     INFO - Integration Time: 0.4999975135135135s 
+2025-06-11 11:35:03.978 -          routine -     INFO - Set next capture time to: 2025-06-11 11:35:04
+2025-06-11 11:35:04.982 -          routine -     INFO - Routine Module: 9.66s ==> Capturing Img #6 ~ I:1.0s | G: 1.0dB
+2025-06-11 11:35:04.987 -            aegir -     INFO - Capturing Image 5 (#6 of routine)
+2025-06-11 11:35:04.989 -            aegir -     INFO - 	Auto integration time mode: False
+2025-06-11 11:35:04.990 -            aegir -     INFO - 	Integration Time:  1.00000s
+2025-06-11 11:35:04.990 -            aegir -     INFO - 	Gain: 1.0
+2025-06-11 11:35:04.995 - device_interface -     INFO - Setting integration time. Time: 1.0s
+2025-06-11 11:35:05.005 - device_interface -     INFO - Integration time set to 1.0 s
+2025-06-11 11:35:05.008 -            aegir -     INFO - 	Set integration time to 0.9999975135135135
+2025-06-11 11:35:05.009 -            aegir -     INFO - Initiating capture
+2025-06-11 11:35:05.412 -          session -     INFO - Processing image 3 - Queue size 2
+2025-06-11 11:35:06.097 -            aegir -     INFO - 	Capture Complete
+2025-06-11 11:35:06.158 -        cam_image -     INFO - Saved image 3 to /home/ru-admin/AEGIR_DATA/sessions/2025_06_11__11_34_54/images/2025_06_11__11_34_54_003.png
+2025-06-11 11:35:06.161 -          session -     INFO - Finished processing image 3 - Queue size 2
+2025-06-11 11:35:06.241 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 117, in get_depth
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 117, in get_depth
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:35:06.246 -            aegir -    ERROR - Pressure Sensor Not Responding - setting depth to 0.0
+2025-06-11 11:35:06.392 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 132, in get_pressure
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 132, in get_pressure
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:35:06.395 -            aegir -    ERROR - Pressure Sensor Not Responding - setting pressure to 0.0
+2025-06-11 11:35:06.539 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 148, in get_temp
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 148, in get_temp
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:35:06.545 -            aegir -    ERROR - Pressure Sensor Not Responding - setting temp to 0.0
+2025-06-11 11:35:06.547 -          session -     INFO - Adding image to queue
+2025-06-11 11:35:06.547 -          session -     INFO - Processing queue length: 2
+2025-06-11 11:35:06.549 -            aegir -     INFO - 	Added to Queue - Queue size: 2
+2025-06-11 11:35:06.550 -            aegir -     INFO - Captured Image #6
+2025-06-11 11:35:06.552 -            aegir -     INFO - Timestamp: 2025-06-11 11:35:06
+2025-06-11 11:35:06.552 -            aegir -     INFO - Integration Time: 0.9999975135135135s 
+2025-06-11 11:35:06.553 -          routine -     INFO - Set next capture time to: 2025-06-11 11:35:07
+2025-06-11 11:35:07.555 -          routine -     INFO - Routine Module: 12.23s ==> Capturing Img #7 ~ I:1.5s | G: 1.0dB
+2025-06-11 11:35:07.559 -            aegir -     INFO - Capturing Image 6 (#7 of routine)
+2025-06-11 11:35:07.560 -            aegir -     INFO - 	Auto integration time mode: False
+2025-06-11 11:35:07.561 -            aegir -     INFO - 	Integration Time:  1.50000s
+2025-06-11 11:35:07.561 -            aegir -     INFO - 	Gain: 1.0
+2025-06-11 11:35:07.570 - device_interface -     INFO - Setting integration time. Time: 1.5s
+2025-06-11 11:35:07.584 - device_interface -     INFO - Integration time set to 1.5 s
+2025-06-11 11:35:07.588 -            aegir -     INFO - 	Set integration time to 1.4999975135135135
+2025-06-11 11:35:07.590 -            aegir -     INFO - Initiating capture
+2025-06-11 11:35:08.109 -          session -     INFO - Processing image 4 - Queue size 2
+2025-06-11 11:35:09.128 -        cam_image -     INFO - Saved image 4 to /home/ru-admin/AEGIR_DATA/sessions/2025_06_11__11_34_54/images/2025_06_11__11_34_54_004.png
+2025-06-11 11:35:09.203 -          session -     INFO - Finished processing image 4 - Queue size 2
+2025-06-11 11:35:09.593 -            aegir -     INFO - 	Capture Complete
+2025-06-11 11:35:09.737 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 117, in get_depth
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 117, in get_depth
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:35:09.748 -            aegir -    ERROR - Pressure Sensor Not Responding - setting depth to 0.0
+2025-06-11 11:35:09.966 -          session -     INFO - Adding image to queue
+2025-06-11 11:35:09.969 -          session -     INFO - Processing queue length: 2
+2025-06-11 11:35:09.971 -            aegir -     INFO - 	Added to Queue - Queue size: 2
+2025-06-11 11:35:09.972 -            aegir -     INFO - Captured Image #7
+2025-06-11 11:35:09.976 -            aegir -     INFO - Timestamp: 2025-06-11 11:35:09
+2025-06-11 11:35:09.978 -            aegir -     INFO - Integration Time: 1.4999975135135135s 
+2025-06-11 11:35:09.980 -          routine -     INFO - Set next capture time to: 2025-06-11 11:35:10
+2025-06-11 11:35:10.981 -          routine -     INFO - Routine Module: 15.66s ==> Capturing Img #8 ~ I:2.0s | G: 1.0dB
+2025-06-11 11:35:10.984 -            aegir -     INFO - Capturing Image 7 (#8 of routine)
+2025-06-11 11:35:10.984 -            aegir -     INFO - 	Auto integration time mode: False
+2025-06-11 11:35:10.985 -            aegir -     INFO - 	Integration Time:  2.00000s
+2025-06-11 11:35:10.985 -            aegir -     INFO - 	Gain: 1.0
+2025-06-11 11:35:10.990 - device_interface -     INFO - Setting integration time. Time: 2.0s
+2025-06-11 11:35:11.000 - device_interface -     INFO - Integration time set to 2.0 s
+2025-06-11 11:35:11.003 -            aegir -     INFO - 	Set integration time to 1.9999975135135135
+2025-06-11 11:35:11.004 -            aegir -     INFO - Initiating capture
+2025-06-11 11:35:11.298 -          session -     INFO - Processing image 5 - Queue size 2
+2025-06-11 11:35:12.753 -        cam_image -     INFO - Saved image 5 to /home/ru-admin/AEGIR_DATA/sessions/2025_06_11__11_34_54/images/2025_06_11__11_34_54_005.png
+2025-06-11 11:35:12.822 -          session -     INFO - Finished processing image 5 - Queue size 2
+2025-06-11 11:35:15.104 -            aegir -     INFO - 	Capture Complete
+2025-06-11 11:35:15.249 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 117, in get_depth
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 117, in get_depth
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:35:15.252 -            aegir -    ERROR - Pressure Sensor Not Responding - setting depth to 0.0
+2025-06-11 11:35:15.395 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 132, in get_pressure
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 132, in get_pressure
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:35:15.397 -            aegir -    ERROR - Pressure Sensor Not Responding - setting pressure to 0.0
+2025-06-11 11:35:15.541 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 148, in get_temp
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 148, in get_temp
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:35:15.543 -            aegir -    ERROR - Pressure Sensor Not Responding - setting temp to 0.0
+2025-06-11 11:35:15.544 -          session -     INFO - Adding image to queue
+2025-06-11 11:35:15.544 -          session -     INFO - Processing queue length: 2
+2025-06-11 11:35:15.545 -            aegir -     INFO - 	Added to Queue - Queue size: 2
+2025-06-11 11:35:15.545 -            aegir -     INFO - Captured Image #8
+2025-06-11 11:35:15.546 -            aegir -     INFO - Timestamp: 2025-06-11 11:35:15
+2025-06-11 11:35:15.546 -            aegir -     INFO - Integration Time: 1.9999975135135135s 
+2025-06-11 11:35:15.547 -          routine -     INFO - Set next capture time to: 2025-06-11 11:35:16
+2025-06-11 11:35:15.854 -          session -     INFO - Processing image 6 - Queue size 2
+2025-06-11 11:35:16.547 -          routine -     INFO - Routine Module: 21.22s ==> Capturing Img #9 ~ I:2.5s | G: 1.0dB
+2025-06-11 11:35:16.550 -            aegir -     INFO - Capturing Image 9 (#9 of routine)
+2025-06-11 11:35:16.551 -            aegir -     INFO - 	Auto integration time mode: False
+2025-06-11 11:35:16.551 -            aegir -     INFO - 	Integration Time:  2.50000s
+2025-06-11 11:35:16.552 -            aegir -     INFO - 	Gain: 1.0
+2025-06-11 11:35:16.556 - device_interface -     INFO - Setting integration time. Time: 2.5s
+2025-06-11 11:35:16.559 - device_interface -    ERROR - Time is greater than max time of 2.000002918918919 s
+2025-06-11 11:35:16.559 - device_interface -     INFO - Changing sensor mode to LongExposure
+2025-06-11 11:35:16.560 - device_interface -     INFO - Current mode: Default
+2025-06-11 11:35:16.560 - device_interface -     INFO - Stopping acquisition
+2025-06-11 11:35:18.096 - device_interface -     INFO - Resuming acquisition
+2025-06-11 11:35:20.131 - device_interface -     INFO - Mode changed to Continuous
+2025-06-11 11:35:20.150 - device_interface -     INFO - Integration time set to 2.5 s
+2025-06-11 11:35:20.153 -            aegir -     INFO - 	Set integration time to 2.4999429189189186
+2025-06-11 11:35:20.154 -            aegir -     INFO - Initiating capture
+2025-06-11 11:35:20.622 -        cam_image -     INFO - Saved image 6 to /home/ru-admin/AEGIR_DATA/sessions/2025_06_11__11_34_54/images/2025_06_11__11_34_54_006.png
+2025-06-11 11:35:20.696 -          session -     INFO - Finished processing image 6 - Queue size 2
+2025-06-11 11:35:24.162 -          session -     INFO - Processing image 7 - Queue size 1
+2025-06-11 11:35:25.962 -        cam_image -     INFO - Saved image 7 to /home/ru-admin/AEGIR_DATA/sessions/2025_06_11__11_34_54/images/2025_06_11__11_34_54_007.png
+2025-06-11 11:35:25.972 -          session -     INFO - Finished processing image 7 - Queue size 1
+2025-06-11 11:35:26.391 -            aegir -     INFO - 	Capture Complete
+2025-06-11 11:35:26.535 -            aegir -    ERROR - [Errno 5] Input/output error
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 117, in get_depth
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ru-admin/AEGIR/python_scripts/aegir.py", line 117, in get_depth
+    sensor.read()
+  File "/home/ru-admin/AEGIR/python_scripts/ms5837.py", line 108, in read
+    d = self._bus.read_i2c_block_data(self._MS5837_ADDR, self._MS5837_ADC_READ, 3)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ru-admin/miniforge3/envs/aegir/lib/python3.11/site-packages/smbus2/smbus2.py", line 617, in read_i2c_block_data
+    ioctl(self.fd, I2C_SMBUS, msg)
+OSError: [Errno 5] Input/output error
+2025-06-11 11:35:26.539 -            aegir -    ERROR - Pressure Sensor Not Responding - setting depth to 0.0
+2025-06-11 11:35:26.889 -          session -     INFO - Adding image to queue
+2025-06-11 11:35:26.890 -          session -     INFO - Processing queue length: 1
+2025-06-11 11:35:26.891 -            aegir -     INFO - 	Added to Queue - Queue size: 1
+2025-06-11 11:35:26.892 -            aegir -     INFO - Captured Image #9
+2025-06-11 11:35:26.892 -            aegir -     INFO - Timestamp: 2025-06-11 11:35:26
+2025-06-11 11:35:26.893 -            aegir -     INFO - Integration Time: 2.4999429189189186s 
+2025-06-11 11:35:26.893 -          routine -     INFO - Set next capture time to: 2025-06-11 11:35:26
+2025-06-11 11:35:26.894 -          routine -     INFO - Capture Queue: Stop signal received.
+2025-06-11 11:35:26.894 -          routine -     INFO - Capture Queue: Sentinel value received.
+2025-06-11 11:35:26.895 -          routine -     INFO - Capture Queue: Finished processing capture queue.
+2025-06-11 11:35:26.895 -            aegir -     INFO - Completion Reason: Time Limit Reached
+2025-06-11 11:35:28.966 -          session -     INFO - Adding sentinel value to processing queue
+2025-06-11 11:35:28.967 -          session -     INFO - Processing queue length: 2
+2025-06-11 11:35:28.968 -          session -     INFO - Waiting to process remaining images
+2025-06-11 11:35:30.112 -          session -     INFO - Processing image 8 - Queue size 2
+2025-06-11 11:35:31.448 -        cam_image -     INFO - Saved image 8 to /home/ru-admin/AEGIR_DATA/sessions/2025_06_11__11_34_54/images/2025_06_11__11_34_54_008.png
+2025-06-11 11:35:31.452 -          session -     INFO - Finished processing image 8 - Queue size 2
+2025-06-11 11:35:33.394 -          session -     INFO - Processing image 9 - Queue size 1
+2025-06-11 11:35:34.736 -        cam_image -     INFO - Saved image 9 to /home/ru-admin/AEGIR_DATA/sessions/2025_06_11__11_34_54/images/2025_06_11__11_34_54_009.png
+2025-06-11 11:35:34.740 -          session -     INFO - Finished processing image 9 - Queue size 1
+2025-06-11 11:35:34.748 -          session -     INFO - Processing queue: Sentinel value received
+2025-06-11 11:35:34.748 -          session -     INFO - Processing queue: Exited processing loop.
+2025-06-11 11:35:34.749 -          session -     INFO - Finished processing last image
+2025-06-11 11:35:34.749 -            aegir -     INFO - Complete at 2025-06-11 11:35:34
+

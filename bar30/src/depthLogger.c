@@ -39,7 +39,7 @@ int main()
     strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d_%H:%M:%S", tm_info);
     
     // Print the results
-    printf("%s %.2f %.2f\n", time_buffer, depth_meters, temperature_c);
+    printf("%lu %s %.2f %.2f\n", current_time, time_buffer, depth_meters, temperature_c);
 
     // Stop the sensor before exiting
     bar30_stop(bar30_ptr);

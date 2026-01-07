@@ -55,7 +55,7 @@ do
 
     /usr/bin/stty -F "$SERIAL_DEVICE" 921600
 
-    INPUT=$(timeout 5 cat "$SERIAL_DEVICE" 2>/dev/null)
+    INPUT=$(timeout 1 cat "$SERIAL_DEVICE" 2>/dev/null)
 
     if [ -n "$INPUT" ]; then
         printf -v current_date_time '%(%Y-%m-%d %H:%M:%S)T\n' -1
@@ -72,7 +72,7 @@ do
     #printf -v current_date_time '%(%Y-%m-%d %H:%M:%S)T\n' -1
     #echo "${current_date_time}: No input received from \"$SERIAL_DEVICE\". Starting depthLogger." >> "$LOG_FILE"
     #echo "${current_date_time}: No input received from \"$SERIAL_DEVICE\". Starting depthLogger."
-    result=$(timeout 5 /usr/local/bin/depthLogger 2>&1)
+    result=$(timeout 1 /usr/local/bin/depthLogger 2>&1)
     if [ $? -ne 0 ]; then
         printf -v current_date_time '%(%Y-%m-%d %H:%M:%S)T\n' -1
         #echo "${current_date_time}: depthLogger failed to start or did not return data." >> "$LOG_FILE"

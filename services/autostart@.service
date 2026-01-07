@@ -6,8 +6,8 @@ After=dev-DH4.device
 
 [Service]
 Type=forking
-ExecStart=/usr/local/%i autostart --start
-ExecStop=/usr/local/%i -x
+ExecStart=/usr/local/bin/%i autostart --start
+ExecStop=/usr/local/bin/%i -x
 
 [Install]
 WantedBy=dev-DH4.device

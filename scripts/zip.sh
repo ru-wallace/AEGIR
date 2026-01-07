@@ -218,7 +218,7 @@ ZIP_DIR="$DATA_DIRECTORY/zipped_sessions"
 
 
 
-tar_file="$ZIP_DIR/ran_sessions_$(date +%Y-%m-%d_%H-%M-%S).tar"
+tar_file="$ZIP_DIR/${TOOL_LOWER}_sessions_$(date +%Y-%m-%d_%H-%M-%S).tar"
 if [[ $TAR_ONLY == true ]]; then
     tar_file="$tar_file"
 else

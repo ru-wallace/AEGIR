@@ -1,7 +1,6 @@
-# $\Huge{\texttt{AEGIR}}$
+# AEGIR
 
-$\Huge{A}\large{\text{rtifical and }}\Huge{E}\large{\text{nvironmental ni}}\Huge{G}\large{\text{httime }}\Huge{I}\large{\text{rradiance and }}\Huge{R}\large{\text{adiance}}$
-
+**A**rtificial and **E**nvironmental ni**G**httime **IR**radiance
 
 
 
@@ -82,6 +81,16 @@ The tools will only work on Linux based operating systems. The system is designe
 - ``` -x, --stop``` : Send a stop signal to a currently running routine. If an image is currently being captured, capture completes, the image is added to the save queue, and the routine is stopped. The save queue keeps working until all images are processed and saved, which should only be a few seconds.
 - ```-l\ --log``` : Show a live view of the output log of a currently running routine. Use ```Ctrl+C``` to exit the log view - this will not stop the routine.
 - ```--run <Filepath>``` : Run a python script using the environment variables as set in the .env file. This is useful for running scripts which use the IDS Peak API, or the GenICam GenTL API, as the device GenTL producer variables must be set in order to interface with a camera. The full path must be in the current working directory or the full path must be given. The script must be a valid python script which can be run using the python interpreter.
+- ```autostart [OPTIONS] ```: Manage autostart settings.
+  - ```--enable```, ```-e```: Enable autostart with routine. Requires ```-r```/```--routine``` to be set.
+  - ```--routine```,```-r [routine_name] ```: Specify routine file to run on autostart (default directory: ./routines in Aegir DATA_DIRECTORY)
+  - ```--session```, ```-s [session_name]```: Specify session name for autostart routine. If not set, a the starting timestamp will be used.
+ 
+  - ```--disable```, ```-d```: Disable autostart.
+  - ```--query```, ```-q```: Query current autostart settings.
+  - ```--start```: Start autostart routine immediately.
+        
+  
 
 ## Concepts
 
